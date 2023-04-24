@@ -1,4 +1,5 @@
 import 'package:construction_company/special_pages/account.dart';
+import 'package:construction_company/special_pages/notification.dart';
 import 'package:construction_company/special_pages/equipment_tracking.dart';
 import 'package:construction_company/special_pages/logout.dart';
 import 'package:construction_company/special_pages/materialcomp.dart';
@@ -21,6 +22,7 @@ var services = [
   "Equipment",
   "Material",
   "Workers tracking",
+  "Notifications",
   "Salary",
   "Tasks",
   "Customer dashboard",
@@ -32,6 +34,7 @@ var images = [
   "images/crane-truck.png",
   "images/building-materials.png",
   "images/tracking.png",
+  "images/notification.png",
   "images/salary.png",
   "images/time.png",
   "images/workers.png",
@@ -41,10 +44,11 @@ var images = [
 
 class _DashboardState extends State<Dashboard> {
   List<Widget> _pages = [
-    // ProjectOverviewPage(),
+    ProjectScreen(),
     equipment(),
     MaterialCom(),
     WorkerTrack(),
+    notifications(),
     Salary(),
     Tasks(),
     WorkerDash(),
@@ -59,7 +63,7 @@ class _DashboardState extends State<Dashboard> {
         itemCount: services.length,
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2, childAspectRatio: 1.0),
-        itemBuilder: (BuildContext, int index){
+        itemBuilder: (BuildContext, int index) {
           return Container(
             margin: EdgeInsets.all(10.0),
             child: Card(

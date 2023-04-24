@@ -1,5 +1,8 @@
 import 'dart:convert';
+import 'package:construction_company/special_pages/notification.dart';
+import 'package:construction_company/special_pages/projectDetail.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
 class ProjectScreen extends StatefulWidget {
@@ -12,6 +15,12 @@ class _ProjectScreenState extends State<ProjectScreen> {
   List<dynamic> pendingProjects = [];
   List<dynamic> overdueProjects = [];
   List<dynamic> completedProjects = [];
+  final pendingIcon = Icon(Icons.pending, color: Colors.orange);
+  final overdueIcon = Icon(Icons.warning, color: Colors.red);
+  final completedIcon = Icon(Icons.check_circle, color: Colors.green);
+
+  final searchController = TextEditingController();
+  List<dynamic> displayedProjects = [];
 
   Future<void> getProjects() async {
     var response =
@@ -29,9 +38,11 @@ class _ProjectScreenState extends State<ProjectScreen> {
             .where((project) => project['status'] == 'completed')
             .toList();
         projects = projects.map((project) {
-          project['imageUrl'] = 'http://10.0.2.2:3000/uploads/${project['media']}';
+          project['imageUrl'] =
+              'http://10.0.2.2:3000/uploads/${project['media']}';
           return project;
         }).toList();
+        displayedProjects = projects;
       });
     } else {
       print('Failed to load projects');
@@ -45,10 +56,42 @@ class _ProjectScreenState extends State<ProjectScreen> {
   }
 
   @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
+
+  void updateDisplayedProjects(String searchTerm) {
+    if (searchTerm.isEmpty) {
+      setState(() {
+        displayedProjects = projects;
+      });
+    } else {
+      setState(() {
+        displayedProjects = projects.where((project) {
+          return project['name']
+              .toLowerCase()
+              .contains(searchTerm.toLowerCase());
+        }).toList();
+      });
+    }
+  }
+
+  //////// class project to add project
+
+  @override
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 4,
       child: Scaffold(
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return AddProjectScreen();
+            }));
+          },
+          child: Icon(Icons.add),
+        ),
         backgroundColor: Color.fromARGB(255, 240, 234, 234),
         appBar: AppBar(
           title: Text("Projects"),
@@ -64,7 +107,8 @@ class _ProjectScreenState extends State<ProjectScreen> {
                 child: Card(
                   elevation: 6,
                   child: TextField(
-                    // onChanged: (value) => _runFilter(value),
+                    controller: searchController,
+                    onChanged: updateDisplayedProjects,
                     decoration: InputDecoration(
                       contentPadding: const EdgeInsets.symmetric(
                           vertical: 15.0, horizontal: 15),
@@ -83,6 +127,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
                 height: 10,
               ),
               Container(
+                margin: EdgeInsets.only(bottom: 10),
                 height: 64,
                 decoration: BoxDecoration(
                   color: Colors.grey[300],
@@ -134,70 +179,573 @@ class _ProjectScreenState extends State<ProjectScreen> {
               Expanded(
                 child: TabBarView(
                   children: [
+                    // All Projects
                     ListView.builder(
-                      itemCount: projects.length,
+                      itemCount: displayedProjects.length,
                       itemBuilder: (BuildContext context, int index) {
-                        return Card(
-                          elevation: 6,
-                          margin: EdgeInsets.all(10),
-                          child: ListTile(
-                            leading: Image.network(projects[index]['imageUrl']),
-                            title: Text(projects[index]['name'] ?? ''),
-                            subtitle:
-                                Text(projects[index]['description'] ?? ''),
-                            trailing: Text(projects[index]['status'] ?? ''),
-                          ),
+                        return Stack(
+                          children: [
+                            Card(
+                              elevation: 6,
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    margin: EdgeInsets.all(10),
+                                    height: 100,
+                                    width: 100,
+                                    decoration: BoxDecoration(
+                                      image: DecorationImage(
+                                        image: NetworkImage(
+                                          projects[index]['imageUrl'],
+                                        ),
+                                        fit: BoxFit.cover,
+                                      ),
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            displayedProjects[index]['name'],
+                                            style: TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            height: 5,
+                                          ),
+                                          Text(
+                                            projects[index]['description'] ??
+                                                '',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.grey[600],
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            height: 10,
+                                          ),
+                                          Container(
+                                            height: 30,
+                                            color: Color(0xfff7b858),
+                                            child: TextButton(
+                                              onPressed: () {},
+                                              child: Text(
+                                                'Show More',
+                                                style: TextStyle(
+                                                    color: Colors.white),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    margin: EdgeInsets.all(20),
+                                    child: Align(
+                                      alignment: Alignment.bottomRight,
+                                      child: Column(
+                                        children: [
+                                          (projects[index]['status'] ==
+                                                  'pending')
+                                              ? Tooltip(
+                                                  message: (projects[index]
+                                                              ['status'] ==
+                                                          'pending')
+                                                      ? 'pending'
+                                                      : (projects[index]
+                                                                  ['status'] ==
+                                                              'overdue')
+                                                          ? 'overdue'
+                                                          : 'completed',
+                                                  child: pendingIcon)
+                                              : (projects[index]['status'] ==
+                                                      'overdue')
+                                                  ? Tooltip(
+                                                      message: (projects[index]
+                                                                  ['status'] ==
+                                                              'pending')
+                                                          ? 'pending'
+                                                          : (projects[index][
+                                                                      'status'] ==
+                                                                  'overdue')
+                                                              ? 'overdue'
+                                                              : 'completed',
+                                                      child: overdueIcon)
+                                                  : Tooltip(
+                                                      message: (projects[index]
+                                                                  ['status'] ==
+                                                              'pending')
+                                                          ? 'pending'
+                                                          : (projects[index][
+                                                                      'status'] ==
+                                                                  'overdue')
+                                                              ? 'overdue'
+                                                              : 'completed',
+                                                      child: completedIcon),
+                                          Text(
+                                            '${projects[index]['status']}',
+                                            style: TextStyle(
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.bold,
+                                              color: (projects[index]
+                                                          ['status'] ==
+                                                      'pending')
+                                                  ? Colors.orange
+                                                  : (projects[index]
+                                                              ['status'] ==
+                                                          'overdue')
+                                                      ? Colors.red
+                                                      : Colors.green,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         );
                       },
                     ),
+                    // Pending Projects
                     ListView.builder(
                       itemCount: pendingProjects.length,
                       itemBuilder: (BuildContext context, int index) {
-                        return Card(
-                          elevation: 6,
-                          margin: EdgeInsets.all(10),
-                          child: ListTile(
-                          leading: Image.network(pendingProjects[index]['imageUrl']),
-                            title: Text(pendingProjects[index]['name'] ?? ''),
-                            subtitle: Text(
-                                pendingProjects[index]['description'] ?? ''),
-                            trailing:
-                                Text(pendingProjects[index]['status'] ?? ''),
-                          ),
+                        return Stack(
+                          children: [
+                            Container(
+                              margin: EdgeInsets.all(10),
+                              child: Card(
+                                elevation: 6,
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      margin: EdgeInsets.all(10),
+                                      height: 100,
+                                      width: 100,
+                                      decoration: BoxDecoration(
+                                        image: DecorationImage(
+                                          image: NetworkImage(
+                                            pendingProjects[index]['imageUrl'],
+                                          ),
+                                          fit: BoxFit.cover,
+                                        ),
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              pendingProjects[index]['name'],
+                                              style: TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              height: 5,
+                                            ),
+                                            Text(
+                                              pendingProjects[index]
+                                                      ['description'] ??
+                                                  '',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.grey[600],
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              height: 10,
+                                            ),
+                                            Container(
+                                              height: 30,
+                                              color: Color(0xfff7b858),
+                                              child: TextButton(
+                                                onPressed: () {},
+                                                child: Text(
+                                                  'Show More',
+                                                  style: TextStyle(
+                                                      color: Colors.white),
+                                                ),
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    Container(
+                                      margin: EdgeInsets.all(20),
+                                      child: Align(
+                                        alignment: Alignment.centerRight,
+                                        child: Column(
+                                          children: [
+                                            (pendingProjects[index]['status'] ==
+                                                    'pending')
+                                                ? Tooltip(
+                                                    message: (pendingProjects[index]
+                                                                ['status'] ==
+                                                            'pending')
+                                                        ? 'pending'
+                                                        : (pendingProjects[index]['status'] ==
+                                                                'overdue')
+                                                            ? 'overdue'
+                                                            : 'completed',
+                                                    child: pendingIcon)
+                                                : (pendingProjects[index]
+                                                            ['status'] ==
+                                                        'overdue')
+                                                    ? Tooltip(
+                                                        message: (pendingProjects[index][
+                                                                    'status'] ==
+                                                                'pending')
+                                                            ? 'pending'
+                                                            : (pendingProjects[index]['status'] ==
+                                                                    'overdue')
+                                                                ? 'overdue'
+                                                                : 'completed',
+                                                        child: overdueIcon)
+                                                    : Tooltip(
+                                                        message: (pendingProjects[index][
+                                                                    'status'] ==
+                                                                'pending')
+                                                            ? 'pending'
+                                                            : (pendingProjects[index]
+                                                                        ['status'] ==
+                                                                    'overdue')
+                                                                ? 'overdue'
+                                                                : 'completed',
+                                                        child: completedIcon),
+                                            Text(
+                                              '${pendingProjects[index]['status']}',
+                                              style: TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.bold,
+                                                color: (pendingProjects[index]
+                                                            ['status'] ==
+                                                        'pending')
+                                                    ? Colors.orange
+                                                    : (pendingProjects[index]
+                                                                ['status'] ==
+                                                            'overdue')
+                                                        ? Colors.red
+                                                        : Colors.green,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         );
                       },
                     ),
+                    // Overdue Projects
                     ListView.builder(
                       itemCount: overdueProjects.length,
                       itemBuilder: (BuildContext context, int index) {
-                        return Card(
-                          elevation: 6,
-                          margin: EdgeInsets.all(10),
-                          child: ListTile(
-                            leading: Image.network(overdueProjects[index]['imageUrl']),
-                            title: Text(overdueProjects[index]['name'] ?? ''),
-                            subtitle: Text(
-                                overdueProjects[index]['description'] ?? ''),
-                            trailing:
-                                Text(overdueProjects[index]['status'] ?? ''),
-                          ),
+                        return Stack(
+                          children: [
+                            Container(
+                              margin: EdgeInsets.all(10),
+                              child: Card(
+                                elevation: 6,
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      margin: EdgeInsets.all(10),
+                                      height: 100,
+                                      width: 100,
+                                      decoration: BoxDecoration(
+                                        image: DecorationImage(
+                                          image: NetworkImage(
+                                            overdueProjects[index]['imageUrl'],
+                                          ),
+                                          fit: BoxFit.cover,
+                                        ),
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              overdueProjects[index]['name'],
+                                              style: TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              height: 5,
+                                            ),
+                                            Text(
+                                              overdueProjects[index]
+                                                      ['description'] ??
+                                                  '',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.grey[600],
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              height: 10,
+                                            ),
+                                            Container(
+                                              height: 30,
+                                              color: Color(0xfff7b858),
+                                              child: TextButton(
+                                                onPressed: () {},
+                                                child: Text(
+                                                  'Show More',
+                                                  style: TextStyle(
+                                                      color: Colors.white),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    Container(
+                                      margin: EdgeInsets.all(20),
+                                      child: Align(
+                                        alignment: Alignment.centerRight,
+                                        child: Column(
+                                          children: [
+                                            (overdueProjects[index]['status'] ==
+                                                    'pending')
+                                                ? Tooltip(
+                                                    message: (overdueProjects[index]
+                                                                ['status'] ==
+                                                            'pending')
+                                                        ? 'pending'
+                                                        : (overdueProjects[index]['status'] ==
+                                                                'overdue')
+                                                            ? 'overdue'
+                                                            : 'completed',
+                                                    child: pendingIcon)
+                                                : (overdueProjects[index]
+                                                            ['status'] ==
+                                                        'overdue')
+                                                    ? Tooltip(
+                                                        message: (overdueProjects[index][
+                                                                    'status'] ==
+                                                                'pending')
+                                                            ? 'pending'
+                                                            : (overdueProjects[index]['status'] ==
+                                                                    'overdue')
+                                                                ? 'overdue'
+                                                                : 'completed',
+                                                        child: overdueIcon)
+                                                    : Tooltip(
+                                                        message: (overdueProjects[index][
+                                                                    'status'] ==
+                                                                'pending')
+                                                            ? 'pending'
+                                                            : (overdueProjects[index]
+                                                                        ['status'] ==
+                                                                    'overdue')
+                                                                ? 'overdue'
+                                                                : 'completed',
+                                                        child: completedIcon),
+                                            Text(
+                                              '${overdueProjects[index]['status']}',
+                                              style: TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.bold,
+                                                color: (overdueProjects[index]
+                                                            ['status'] ==
+                                                        'pending')
+                                                    ? Colors.orange
+                                                    : (overdueProjects[index]
+                                                                ['status'] ==
+                                                            'overdue')
+                                                        ? Colors.red
+                                                        : Colors.green,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         );
                       },
                     ),
+
+                    // Completed Projects
                     ListView.builder(
                       itemCount: completedProjects.length,
                       itemBuilder: (BuildContext context, int index) {
-                        return Card(
-                          elevation: 6,
-                          margin: EdgeInsets.all(10),
-                          child: ListTile(
-                            leading: Image.network(completedProjects[index]['imageUrl']),
-                            title: Text(completedProjects[index]['name'] ?? ''),
-                            subtitle: Text(
-                                completedProjects[index]['description'] ?? ''),
-                            trailing:
-                                Text(completedProjects[index]['status'] ?? ''),
-                          ),
+                        return Stack(
+                          children: [
+                            Container(
+                              margin: EdgeInsets.all(10),
+                              child: Card(
+                                elevation: 6,
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      margin: EdgeInsets.all(10),
+                                      height: 100,
+                                      width: 100,
+                                      decoration: BoxDecoration(
+                                        image: DecorationImage(
+                                          image: NetworkImage(
+                                            completedProjects[index]
+                                                ['imageUrl'],
+                                          ),
+                                          fit: BoxFit.cover,
+                                        ),
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              completedProjects[index]['name'],
+                                              style: TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              height: 5,
+                                            ),
+                                            Text(
+                                              completedProjects[index]
+                                                      ['description'] ??
+                                                  '',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.grey[600],
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              height: 10,
+                                            ),
+                                            Container(
+                                              height: 30,
+                                              color: Color(0xfff7b858),
+                                              child: TextButton(
+                                                onPressed: () {},
+                                                child: Text(
+                                                  'Show More',
+                                                  style: TextStyle(
+                                                      color: Colors.white),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    Container(
+                                      margin: EdgeInsets.all(20),
+                                      child: Align(
+                                        alignment: Alignment.centerRight,
+                                        child: Column(
+                                          children: [
+                                            (completedProjects[index]['status'] ==
+                                                    'pending')
+                                                ? Tooltip(
+                                                    message: (completedProjects[index]
+                                                                ['status'] ==
+                                                            'pending')
+                                                        ? 'pending'
+                                                        : (completedProjects[index]['status'] ==
+                                                                'overdue')
+                                                            ? 'overdue'
+                                                            : 'completed',
+                                                    child: pendingIcon)
+                                                : (completedProjects[index]
+                                                            ['status'] ==
+                                                        'overdue')
+                                                    ? Tooltip(
+                                                        message: (completedProjects[index][
+                                                                    'status'] ==
+                                                                'pending')
+                                                            ? 'pending'
+                                                            : (completedProjects[index]['status'] ==
+                                                                    'overdue')
+                                                                ? 'overdue'
+                                                                : 'completed',
+                                                        child: overdueIcon)
+                                                    : Tooltip(
+                                                        message: (completedProjects[index][
+                                                                    'status'] ==
+                                                                'pending')
+                                                            ? 'pending'
+                                                            : (completedProjects[index]
+                                                                        ['status'] ==
+                                                                    'overdue')
+                                                                ? 'overdue'
+                                                                : 'completed',
+                                                        child: completedIcon),
+                                            Text(
+                                              '${completedProjects[index]['status']}',
+                                              style: TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.bold,
+                                                color: (completedProjects[index]
+                                                            ['status'] ==
+                                                        'pending')
+                                                    ? Colors.orange
+                                                    : (completedProjects[index]
+                                                                ['status'] ==
+                                                            'overdue')
+                                                        ? Colors.red
+                                                        : Colors.green,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         );
                       },
                     ),
