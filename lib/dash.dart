@@ -1,9 +1,10 @@
 import 'package:construction_company/special_pages/account.dart';
+import 'package:construction_company/special_pages/equ.dart';
 import 'package:construction_company/special_pages/notification.dart';
 import 'package:construction_company/special_pages/equipment_tracking.dart';
 import 'package:construction_company/special_pages/logout.dart';
 import 'package:construction_company/special_pages/materialcomp.dart';
-import 'package:construction_company/special_pages/project_overview.dart';
+import 'package:construction_company/special_pages/projectOverview.dart';
 import 'package:construction_company/special_pages/salary.dart';
 import 'package:construction_company/special_pages/tasks.dart';
 import 'package:construction_company/special_pages/worker_dashboard.dart';

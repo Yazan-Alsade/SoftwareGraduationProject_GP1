@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:animated_text_kit/animated_text_kit.dart';
-import 'package:construction_company/special_pages/project_overview.dart';
+import 'package:construction_company/special_pages/projectOverview.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
