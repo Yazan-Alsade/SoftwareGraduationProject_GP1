@@ -2,12 +2,13 @@ import 'dart:developer';
 import 'package:construction_company/dash.dart';
 import 'package:construction_company/home.dart';
 import 'package:construction_company/home.dart';
-import 'package:construction_company/special_pages/equ.dart';
-import 'package:construction_company/special_pages/equipment_tracking.dart';
+import 'package:construction_company/special_pages/equipmentDetails.dart';
+import 'package:construction_company/special_pages/equipment.dart';
 import 'package:construction_company/special_pages/addProject.dart';
 import 'package:construction_company/special_pages/projectOverview.dart';
 import 'package:construction_company/signup.dart';
 import 'package:construction_company/special_pages/projectdetailsScreen.dart';
+import 'package:construction_company/widget/equipment/equipmentScreen.dart';
 import 'login.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -28,7 +29,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
-      home: equipment(),
+      home: EquipmentScreen(),
       routes: {
         'home': (BuildContext context) => Home(),
       },

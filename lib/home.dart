@@ -27,7 +27,7 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Color.fromARGB(185, 119, 82, 111),
+        backgroundColor: Color(0xfff7b858),
         onPressed: () {},
         child: Icon(
           Icons.add,
@@ -37,7 +37,7 @@ class _HomeState extends State<Home> {
       appBar: AppBar(
         title: Text('Main Page'),
         centerTitle: true,
-        backgroundColor: Color.fromARGB(255, 184, 120, 170),
+        backgroundColor: Color(0xfff7b858),
         elevation: 0,
       ),
       backgroundColor: Color(0xFFF0F0F0),
@@ -51,25 +51,25 @@ class _HomeState extends State<Home> {
           },
           items: [
             BottomNavigationBarItem(
-                icon: Icon(Icons.home, color: Color.fromARGB(255, 107, 78, 78)),
+                icon: Icon(Icons.home, color: Color(0xfff7b858)),
                 label: "Home"),
             BottomNavigationBarItem(
               icon: Icon(
                 Icons.book,
-                color: Color.fromARGB(255, 107, 78, 78),
+                color: Color(0xfff7b858),
               ),
               label: "Projects",
             ),
             BottomNavigationBarItem(
                 icon: Icon(
                   Icons.account_box,
-                  color: Color.fromARGB(255, 107, 78, 78),
+                  color: Color(0xfff7b858),
                 ),
                 label: "Profile"),
             BottomNavigationBarItem(
                 icon: Icon(
                   Icons.more,
-                  color: Color.fromARGB(255, 107, 78, 78),
+                  color: Color(0xfff7b858),
                 ),
                 label: "Chat"),
           ]),

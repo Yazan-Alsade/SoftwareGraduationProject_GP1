@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "253210177680",
+    "project_id": "constructioncompany-9d538",
+    "storage_bucket": "constructioncompany-9d538.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:253210177680:android:ef1f694563c8188aa3e815",
+        "android_client_info": {
+          "package_name": "com.example.construction_company"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "253210177680-jk7nj58dn8prbj55uqfdh9bm1uvi0n44.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.construction_company",
+            "certificate_hash": "1cd35a7b64f503afa8c3db0bbeeece700916724b"
+          }
+        },
+        {
+          "client_id": "253210177680-641v6gkhaf0tl57o9fc3fum1fo60gapk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAviuYXomSAIHKCXV3B1lnBauj0HalP5Po"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "253210177680-641v6gkhaf0tl57o9fc3fum1fo60gapk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,7 +1,7 @@
 import 'package:construction_company/special_pages/account.dart';
-import 'package:construction_company/special_pages/equ.dart';
+import 'package:construction_company/special_pages/equipmentDetails.dart';
 import 'package:construction_company/special_pages/notification.dart';
-import 'package:construction_company/special_pages/equipment_tracking.dart';
+import 'package:construction_company/special_pages/equipment.dart';
 import 'package:construction_company/special_pages/logout.dart';
 import 'package:construction_company/special_pages/materialcomp.dart';
 import 'package:construction_company/special_pages/projectOverview.dart';
@@ -46,7 +46,7 @@ var images = [
 class _DashboardState extends State<Dashboard> {
   List<Widget> _pages = [
     ProjectScreen(),
-    equipment(),
+    Equipment(),
     MaterialCom(),
     WorkerTrack(),
     notifications(),
