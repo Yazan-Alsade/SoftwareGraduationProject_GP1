@@ -8,6 +8,7 @@ import 'package:construction_company/special_pages/addProject.dart';
 import 'package:construction_company/special_pages/projectOverview.dart';
 import 'package:construction_company/signup.dart';
 import 'package:construction_company/special_pages/projectdetailsScreen.dart';
+import 'package:construction_company/special_pages/workers_tracking.dart';
 import 'package:construction_company/widget/equipment/equipmentScreen.dart';
 import 'login.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +30,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
-      home: EquipmentScreen(),
+      home: WorkersPage(),
       routes: {
         'home': (BuildContext context) => Home(),
       },

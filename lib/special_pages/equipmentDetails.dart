@@ -1,220 +1,165 @@
-import 'package:badges/badges.dart' as badges;
 import 'dart:convert';
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 
-class equipment extends StatefulWidget {
-  const equipment({Key? key}) : super(key: key);
+import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+
+class MaterialDetailsDialog extends StatefulWidget {
+  final dynamic material;
+
+  const MaterialDetailsDialog({Key? key, required this.material})
+      : super(key: key);
 
   @override
-  _equipmentState createState() => _equipmentState();
+  _MaterialDetailsDialogState createState() => _MaterialDetailsDialogState();
 }
 
-class _equipmentState extends State<equipment> {
-  List<dynamic> _equipmentList = [];
-
-  Future<void> _getEquipmentList() async {
-    try {
-      final response = await http
-          .get(Uri.parse('http://10.0.2.2:3000/Equipment/GetEquipment'));
-      if (response.statusCode == 200) {
-        setState(() {
-          _equipmentList = jsonDecode(response.body);
-        });
-      } else {
-        print('Request failed with status: ${response.statusCode}.');
-      }
-    } catch (err) {
-      print('Request failed with error: $err.');
-    }
-  }
+class _MaterialDetailsDialogState extends State<MaterialDetailsDialog> {
+  final _formKey = GlobalKey<FormState>();
+  int _rating = 3;
+  String _comment = '';
+  dynamic _review;
 
   @override
   void initState() {
-    super.initState();
-    _getEquipmentList();
+    super.initState(); // Fetch the review when the dialog is initialized
+    loadSavedReview(); // Load the saved review from shared preferences
+  }
+Future<void> clearReview() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.remove('rating');
+  await prefs.remove('comment');
+}
+
+  Future<void> loadSavedReview() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final savedRating = prefs.getInt('rating');
+    final savedComment = prefs.getString('comment');
+    if (savedRating != null && savedComment != null) {
+      setState(() {
+        _rating = savedRating;
+        _comment = savedComment;
+      });
+    }
+  }
+
+  Future<void> saveReview() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('rating', _rating);
+    await prefs.setString('comment', _comment);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: null,
-      // AppBar(
-      //   backgroundColor: Color(0xfff7b858),
-      //   title: Text('Equipment List'),
-      //   centerTitle: true,
-      // ),
-      body: Column(
+    return AlertDialog(
+      title: Text(widget.material['name']),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            margin: EdgeInsets.only(top: 25),
-            // height: 200,
-            decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: <BoxShadow>[
-                  BoxShadow(color: Colors.grey.withOpacity(0.4), blurRadius: 10)
-                ]),
-            padding: EdgeInsets.fromLTRB(10, 20, 10, 10),
-            child: Row(
+          Text(widget.material['description']),
+          Text('Price: \$${widget.material['price']}'),
+          Text('Unit: ${widget.material['unit']}'),
+          SizedBox(height: 20),
+          Text('Leave a review:'),
+          Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                    child: Container(
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: const BorderRadius.all(Radius.circular(24)),
-                      boxShadow: <BoxShadow>[
-                        BoxShadow(
-                            color: Colors.grey.withOpacity(0.6),
-                            offset: const Offset(0, 0),
-                            blurRadius: 8)
-                      ]),
-                  child: TextField(
-                    autofocus: false,
-                    onSubmitted: (value) {},
-                    onChanged: (value) {},
-                    decoration: InputDecoration(
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 16,
+                Row(
+                  children: [
+                    RatingBar.builder(
+                      initialRating: _rating.toDouble(),
+                      minRating: 1,
+                      direction: Axis.horizontal,
+                      allowHalfRating: false,
+                      itemCount: 5,
+                      itemSize: 25,
+                      itemPadding: EdgeInsets.symmetric(horizontal: 2.0),
+                      itemBuilder: (context, _) => Icon(
+                        Icons.star,
+                        color: Colors.amber,
                       ),
-                      fillColor: Colors.white,
-                      filled: true,
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(24),
-                          borderSide: BorderSide.none),
-                      hintText: "Search...",
-                      prefixIcon: Icon(Icons.search),
+                      onRatingUpdate: (rating) {
+                        setState(() {
+                          _rating = rating.toInt();
+                        });
+                      },
                     ),
-                  ),
-                )),
-                const SizedBox(
-                  width: 10,
+                    SizedBox(width: 10),
+                    Text('$_rating star(s)'),
+                  ],
                 ),
-                Container(
-                  height: 46,
-                  width: 46,
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: <BoxShadow>[
-                        BoxShadow(
-                            color: Colors.grey.withOpacity(0.6), blurRadius: 8)
-                      ]),
-                  padding: const EdgeInsets.all(12),
-                  child: const Icon(
-                    Icons.filter_alt_outlined,
-                    color: Colors.grey,
+                SizedBox(height: 10),
+                TextFormField(
+                  decoration: InputDecoration(
+                    hintText: 'Write a review...',
+                    border: OutlineInputBorder(),
                   ),
-                ),
-                const SizedBox(
-                  width: 10,
-                ),
-                badges.Badge(
-                  badgeContent: Text(
-                    "1",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  badgeStyle: badges.BadgeStyle(badgeColor: Color(0xfff7b858)),
-                  child: Container(
-                    height: 46,
-                    width: 46,
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: <BoxShadow>[
-                          BoxShadow(
-                              color: Colors.grey.withOpacity(0.6),
-                              blurRadius: 8)
-                        ]),
-                    padding: const EdgeInsets.all(12),
-                    child: const Icon(
-                      Icons.shopping_cart_sharp,
-                      color: Colors.grey,
-                    ),
-                  ),
+                  maxLines: null,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a comment';
+                    }
+                    return null;
+                  },
+                  onChanged: (value) {
+                    setState(() {
+                      _comment = value;
+                    });
+                    saveReview();
+                  },
                 ),
               ],
             ),
           ),
-          const SizedBox(
-            height: 10,
-          ),
-          Flexible(
-            child: ListView.builder(
-              itemCount: _equipmentList.length,
-              itemBuilder: (context, index) {
-                final equipment = _equipmentList[index];
-                return Container(
-                  padding: EdgeInsets.all(10),
-                  margin: EdgeInsets.all(10),
-                  child: Card(
-                    elevation: 5,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Image.asset(
-                          "images/istockphoto-1323030556-612x612.jpg",
-                          // equipment['media']??''
-                          height: 200,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            'Name : ${equipment['name'] ?? ''}',
-                            style: Theme.of(context).textTheme.headline6,
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child:
-                              Text('Category : ${equipment['category'] ?? ''}'),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child:
-                              Text('Condition: ${equipment['specifications']}'),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                              'Availability: ${equipment['availabilityStatus'] ?? ''}'),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text('Location: ${equipment['location']}'),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            'Maintenance History: ${equipment['maintenanceHistory'] ?? ''}',
-                            // style: Theme.of(context).textTheme.headline6,
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            'Notes : ${equipment['notes'] ?? ''}',
-                            // style: Theme.of(context).textTheme.headline6,
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            'Equipment Number: ${equipment['EquipmentNumber'].toString() ?? ''}',
-                            // style: Theme.of(context).textTheme.headline6,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
         ],
       ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: Text('Cancel'),
+        ),
+        TextButton(
+        onPressed: () async {
+  if (_formKey.currentState!.validate()) {
+    final userId = '645a4760d03ec8ca68a8ed25'; // Replace with actual user ID
+
+    // Store new review
+    final response = await http.post(
+      Uri.parse(
+        'http://10.0.2.2:3000/Materials/${widget.material['_id']}/reviews'),
+      body: json.encode({
+        'userId': userId,
+        'rating': _rating,
+        'comment': _comment,
+      }),
+      headers: {'Content-Type': 'application/json'},
+    );
+    if (response.statusCode == 201) {
+      final newReview = json.decode(response.body);
+      setState(() {
+        _review = newReview;
+      });
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Review submitted'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      clearReview(); // Clear the saved review from shared preferences
+    }
+  }
+},
+
+          child: Text(_review != null ? 'Update' : 'Submit'),
+        )
+      ],
     );
   }
 }

@@ -7,8 +7,9 @@ import 'package:construction_company/special_pages/materialcomp.dart';
 import 'package:construction_company/special_pages/projectOverview.dart';
 import 'package:construction_company/special_pages/salary.dart';
 import 'package:construction_company/special_pages/tasks.dart';
-import 'package:construction_company/special_pages/worker_dashboard.dart';
+import 'package:construction_company/special_pages/addWorker.dart';
 import 'package:construction_company/special_pages/workers_tracking.dart';
+import 'package:construction_company/widget/equipment/equipmentScreen.dart';
 import 'package:flutter/material.dart';
 
 class Dashboard extends StatefulWidget {
@@ -21,24 +22,20 @@ class Dashboard extends StatefulWidget {
 var services = [
   "Project overview",
   "Equipment",
-  "Material",
   "Workers tracking",
   "Notifications",
   "Salary",
   "Tasks",
-  "Customer dashboard",
   "Profile",
   "Logout",
 ];
 var images = [
   "images/project.png",
   "images/crane-truck.png",
-  "images/building-materials.png",
   "images/tracking.png",
   "images/notification.png",
   "images/salary.png",
   "images/time.png",
-  "images/workers.png",
   "images/profile.png",
   "images/log-out.png",
 ];
@@ -46,13 +43,11 @@ var images = [
 class _DashboardState extends State<Dashboard> {
   List<Widget> _pages = [
     ProjectScreen(),
-    Equipment(),
-    MaterialCom(),
-    WorkerTrack(),
+    EquipmentScreen(),
+    WorkersPage(),
     notifications(),
     Salary(),
     Tasks(),
-    WorkerDash(),
     Account(),
     Logout(),
   ];

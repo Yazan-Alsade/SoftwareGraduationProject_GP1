@@ -26,29 +26,71 @@ class _LoginState extends State<Login> {
 
   bool isloading = false;
 
-  void loginUser() async {
-    if (_email.text.isNotEmpty && _password.text.isNotEmpty) {
-      var reqbody = {
-        "email": _email.text,
-        "password": _password.text,
-      };
-      var response = await http.post(
-          Uri.parse('http://10.0.2.2:3000/api/v1/auth/login'),
-          headers: {"Content-Type": "application/json"},
-          body: jsonEncode(reqbody));
-      var resbody = jsonDecode(response.body);
-      if (reqbody == 200) {
-        Navigator.push(context, MaterialPageRoute(builder: (context) {
-          return Dashboard();
-        }));
-      } else {
-        print("something went wrong");
-      }
-    }
-  }
-
   /////// Sign In ///////////
 
+  void _handleLogin() async {
+    final email = _email.text;
+    final password = _password.text;
+
+    // Validate form inputs
+    if (forms.currentState!.validate()) {
+      return;
+    }
+
+    // Send POST request to login API endpoint
+    final response = await http.post(
+      Uri.parse('http://10.0.2.2:3000/api/v1/auth/login'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({'email': email, 'password': password}),
+    );
+
+    // Handle response from API
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      final token = responseData['token'];
+
+      // Save token to local storage or secure storage
+      // ...
+
+      // Navigate to home page
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return Home();
+      }));
+    } else if (response.statusCode == 400) {
+      final responseData = json.decode(response.body);
+      final message = responseData['message'];
+
+      // Show error message
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Error'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('OK'),
+            ),
+          ],
+        ),
+      );
+    } else {
+      // Handle other error codes
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Error'),
+          content: Text('An error occurred.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('OK'),
+            ),
+          ],
+        ),
+      );
+    }
+  }
   ////////// For Sign In //////////////
 
   @override
@@ -210,11 +252,10 @@ class _LoginState extends State<Login> {
                     ]),
                 child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    // mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       InkWell(
-                        onTap: ()  {
-                             loginUser();
+                        onTap: () {
+                          _handleLogin();
                         },
                         child: Text(
                           'LOGIN',

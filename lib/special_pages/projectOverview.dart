@@ -84,32 +84,6 @@ class _ProjectScreenState extends State<ProjectScreen> {
     }));
   }
 
-  void showProjectDetailsDialog() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        String projectNumber = '';
-        return AlertDialog(
-          title: Text('Enter Project Number'),
-          content: TextField(
-            onChanged: (value) {
-              projectNumber = value;
-            },
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                showProjectDetails(projectNumber);
-              },
-              child: Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   //////// class project to add project
 
   @override
@@ -127,20 +101,6 @@ class _ProjectScreenState extends State<ProjectScreen> {
         ),
         backgroundColor: Color.fromARGB(255, 240, 234, 234),
         appBar: AppBar(
-          actions: [
-            Container(
-              // color: Colors.red,
-              margin: EdgeInsets.all(10),
-              child: TextButton(
-                  onPressed: () {
-                    showProjectDetailsDialog();
-                  },
-                  child: Text(
-                    'Show More',
-                    style: TextStyle(color: Colors.white),
-                  )),
-            )
-          ],
           title: Text("Projects"),
           backgroundColor: Color(0xfff7b858),
           centerTitle: true,

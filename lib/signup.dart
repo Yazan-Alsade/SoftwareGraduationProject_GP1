@@ -29,6 +29,7 @@ class _SignUpState extends State<SignUp> {
   var passwordd;
   var confirmp;
   var birthdate;
+  var balance;
 
   // controller
   TextEditingController _date = TextEditingController();
@@ -36,12 +37,11 @@ class _SignUpState extends State<SignUp> {
   TextEditingController _email = TextEditingController();
   TextEditingController _password = TextEditingController();
   TextEditingController _confirmPassword = TextEditingController();
+  TextEditingController _balance = TextEditingController();
   var country;
 ///////////// for Create Account //////////////
   insert() async {
     if (forms.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Account Created Successfully")));
       isloading = true;
       setState(() {});
       // await Future.delayed(Duration(seconds: 2));
@@ -52,6 +52,7 @@ class _SignUpState extends State<SignUp> {
         "confirmPassword": _confirmPassword.text.toString().trim(),
         "age": _date.text.toString().trim(),
         "country": country.toString().trim(),
+        "balance": _balance.text.toString().trim(),
       };
       var body = json.encode(map);
       var encoding = Encoding.getByName('utf-8');
@@ -65,13 +66,28 @@ class _SignUpState extends State<SignUp> {
       setState(() {
         isloading = false;
       });
-      if (res.statusCode != 200) {
+      if (res.statusCode == 201) {
+        final responsedata = jsonDecode(res.body);
+        final userId = responsedata['savedUser'];
+        Fluttertoast.showToast(
+            msg: 'Signup Successful ! Please verify your email',
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Colors.green,
+            textColor: Colors.white);
+
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => Login()),
+          MaterialPageRoute(builder: (context) => Home()),
         );
       } else {
-        return "Sign Up Failed";
+        final responsedata = jsonDecode(res.body);
+        Fluttertoast.showToast(
+            msg: responsedata['message'],
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Colors.red,
+            textColor: Colors.white);
       }
     }
   }
@@ -290,6 +306,40 @@ class _SignUpState extends State<SignUp> {
                                           color:
                                               Color.fromARGB(255, 155, 130, 93),
                                         ),
+                                        hintStyle: TextStyle(
+                                            fontSize: 17,
+                                            color: Color.fromARGB(
+                                                255, 141, 140, 140)),
+                                        border: InputBorder.none),
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                Card(
+                                  elevation: 8,
+                                  child: TextFormField(
+                                    autovalidateMode:
+                                        AutovalidateMode.onUserInteraction,
+                                    validator: (value) {
+                                      if (value!.isEmpty) {
+                                        return 'Please enter your balance';
+                                      }
+                                      return null;
+                                    },
+                                    onChanged: (value) {
+                                      setState(() {
+                                        balance = value;
+                                      });
+                                    },
+                                    controller: _balance,
+                                    decoration: InputDecoration(
+                                        prefixIcon: Icon(
+                                          Icons.attach_money_rounded,
+                                          color: (Color(0xfff7b858)),
+                                        ),
+                                        // contentPadding: EdgeInsets.all(10),
+                                        hintText: 'Enter your balance',
                                         hintStyle: TextStyle(
                                             fontSize: 17,
                                             color: Color.fromARGB(

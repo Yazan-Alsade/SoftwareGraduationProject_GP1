@@ -1,25 +1,27 @@
-
-  
-
- import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 class appBarEquipmentAndMaterial extends StatelessWidget {
-    appBarEquipmentAndMaterial({super.key, required this.titleAppBar, this.onPressedIcon, this.onPressedSearch});
- final String titleAppBar ;
+  appBarEquipmentAndMaterial(
+      {super.key,
+      required this.titleAppBar,
+      this.onPressedIcon,
+      this.onPressedSearch});
+  final String titleAppBar;
   final void Function()? onPressedIcon;
   final void Function()? onPressedSearch;
-   @override
-   Widget build(BuildContext context) {
-     return Container(
+  @override
+  Widget build(BuildContext context) {
+    return Container(
       margin: EdgeInsets.only(top: 10),
       child: Row(
         children: [
           Expanded(
             child: TextFormField(
               decoration: InputDecoration(
-                prefixIcon: IconButton(onPressed: onPressedSearch, icon: Icon(Icons.search)),
+                prefixIcon: IconButton(
+                    onPressed: onPressedSearch, icon: Icon(Icons.search)),
                 hintText: titleAppBar,
-                hintStyle: TextStyle(fontSize: 18),
+                hintStyle: TextStyle(fontSize: 14),
                 border: OutlineInputBorder(
                   borderSide: BorderSide.none,
                   borderRadius: BorderRadius.circular(10),

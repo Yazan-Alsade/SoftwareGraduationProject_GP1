@@ -1,4 +1,5 @@
-import 'package:construction_company/special_pages/itemsEquipment.dart';
+import 'package:construction_company/special_pages/equipmentDetails.dart';
+import 'package:construction_company/special_pages/materialInCategory.dart';
 import 'package:construction_company/widget/equipment/appBarEquip.dart';
 import 'package:flutter/material.dart';
 import 'package:scroll_snap_list/scroll_snap_list.dart';
@@ -13,70 +14,115 @@ class Equipment extends StatefulWidget {
 }
 
 class _EquipmentState extends State<Equipment> {
-//////////////// For all categories
+  String _searchTerm = '';
+
+//////////////// For get all categories
   Future<List<dynamic>> getCategories() async {
     final response =
         await http.get(Uri.parse('http://10.0.2.2:3000/Materials/Category'));
-    print(response.statusCode);
-
     if (response.statusCode == 200) {
       final decoded = jsonDecode(response.body);
-      return decoded['categories'];
+      // return decoded['categories'];
+      final categories = decoded['categories'] as List<dynamic>;
+
+      // Filter categories based on search term
+      final filteredCategories = categories
+          .where((category) => category['name']
+              .toLowerCase()
+              .contains(_searchTerm.toLowerCase()))
+          .toList();
+
+      return filteredCategories;
     } else {
       throw Exception('Failed to load categories');
     }
   }
 
-  // List<dynamic> materials = [];
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   fetchMaterials();
-  // }
-
-  //////////// For all materials
-  // Future<List<dynamic>> fetchMaterials() async {
-  //   try {
-  //     final response = await http
-  //         .get(Uri.parse('http://10.0.2.2:3000/Materials/GetAllMaterial'));
-  //     final data = jsonDecode(response.body);
-  //     setState(() {
-  //       return data['ShowMaterial'];
-  //     });
-  //   } catch (error) {
-  //     print('Error fetching materials: $error');
-  //   }
-  // }
+/////////////// for get all material
   Future<List<dynamic>> fetchMaterial() async {
     final response = await http
         .get(Uri.parse('http://10.0.2.2:3000/Materials/GetAllMaterial'));
-    print(response.statusCode);
-    if (response.statusCode == 201) {
+
+    if (response.statusCode == 200) {
       final decoded = jsonDecode(response.body);
-      return decoded['ShowMaterial'];
+      // return decoded['materials'];
+      final materials = decoded['materials'] as List<dynamic>;
+
+      // Filter materials based on search term
+      final filteredMaterials = materials
+          .where((material) =>
+              material['name']
+                  .toLowerCase()
+                  .contains(_searchTerm.toLowerCase()) ||
+              material['category']
+                  .toLowerCase()
+                  .contains(_searchTerm.toLowerCase()))
+          .toList();
+
+      return filteredMaterials;
     } else {
       throw Exception('Failed to load categories');
     }
   }
 
-  List<String> items = [
-    "images/istockphoto-1288941637-612x612.jpg",
-    "images/istockphoto-1288941637-612x612.jpg",
-    "images/istockphoto-1288941637-612x612.jpg",
-    "images/istockphoto-1288941637-612x612.jpg",
-    "images/istockphoto-1288941637-612x612.jpg",
-  ];
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 15),
       child: ListView(
         children: [
-          appBarEquipmentAndMaterial(
-            titleAppBar: "Find Equipment",
-            onPressedIcon: () {},
-            onPressedSearch: () {},
+          Container(
+            margin: EdgeInsets.only(top: 10),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    onChanged: (value) {
+                      setState(() {
+                        _searchTerm = value;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      prefixIcon: IconButton(
+                          onPressed: () {}, icon: Icon(Icons.search)),
+                      hintText: "Find Category or Material",
+                      hintStyle: TextStyle(fontSize: 18),
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey[200],
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: 10,
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  width: 60,
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                  child: IconButton(
+                    onPressed: () {},
+                    icon: Icon(
+                      Icons.notifications_active_outlined,
+                      size: 30,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
+          // appBarEquipmentAndMaterial(
+          //   titleAppBar: "Find Equipment",
+          //   onPressedIcon: () {},
+          //   onPressedSearch: () {},
+          // ),
           Container(
             margin: EdgeInsets.symmetric(vertical: 15),
             child: Stack(
@@ -149,7 +195,7 @@ class _EquipmentState extends State<Equipment> {
                 return Container(
                   height: 140,
                   child: ListView.separated(
-                    separatorBuilder: (context, index) => SizedBox(width: 10),
+                    separatorBuilder: (context, index) => SizedBox(width: 20),
                     itemCount: categories.length,
                     scrollDirection: Axis.horizontal,
                     itemBuilder: (context, index) {
@@ -158,18 +204,20 @@ class _EquipmentState extends State<Equipment> {
                         onTap: () {
                           Navigator.push(context,
                               MaterialPageRoute(builder: (context) {
-                            return ItemsEquipment();
+                            return ItemsEquipment(
+                              categoryName: category['name'],
+                            );
                           }));
                         },
                         child: Column(
                           children: [
                             Container(
                               decoration: BoxDecoration(
-                                color: Color(0xfff7b858),
+                                // color: Color(0xfff7b858),
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               padding: EdgeInsets.symmetric(horizontal: 10),
-                              height: 100,
+                              height: 50,
                               child: Image.network(
                                 category['imageUrl'],
                                 height: 100,
@@ -197,7 +245,7 @@ class _EquipmentState extends State<Equipment> {
             height: 20,
           ),
           Text(
-            "Material and Equipment for you:",
+            "Material and Equipment in my Company:",
             style: TextStyle(
               fontSize: 18,
               color: Colors.teal[400],
@@ -206,12 +254,10 @@ class _EquipmentState extends State<Equipment> {
           SizedBox(
             height: 20,
           ),
-          
           Container(
             height: 200,
-            // width: 200,
             child: FutureBuilder(
-              future: getCategories(),
+              future: fetchMaterial(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(
@@ -228,55 +274,67 @@ class _EquipmentState extends State<Equipment> {
                     itemSize: 150,
                     itemBuilder: (context, index) {
                       var material = materials[index];
-
-                      return Card(
-                        elevation: 12,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                          child: Column(
-                            children: [
-                              Image.network(
-                                material['imageUrl'],
-                                fit: BoxFit.cover,
-                                height: 100,
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              Text(
-                                material["name"],
-                                style: TextStyle(
-                                  fontSize: 15,
+                      return GestureDetector(
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return MaterialDetailsDialog(material: material,);
+                            },
+                          );
+                        },
+                        child: Card(
+                          elevation: 12,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                            child: Column(
+                              children: [
+                                Image.network(
+                                  material['imageUrl'],
+                                  fit: BoxFit.cover,
+                                  height: 100,
                                 ),
-                              ),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 8.0),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    // Text(
-                                    //   "\$${material['price']}",
-                                    //   style: TextStyle(
-                                    //       fontWeight: FontWeight.bold),
-                                    // ),
-                                    // Text(
-                                    //   material['unit'],
-                                    //   style: TextStyle(color: Colors.blue),
-                                    // ),
-                                  ],
+                                SizedBox(
+                                  height: 10,
                                 ),
-                              )
-                            ],
+                                Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 15),
+                                  child: Text(
+                                    material["name"],
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "\$${material['price']}",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      Text(
+                                        material['unit'],
+                                        style: TextStyle(color: Colors.blue),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              ],
+                            ),
                           ),
                         ),
                       );
                     },
+                    scrollDirection: Axis.horizontal,
+                    initialIndex: 0,
                     itemCount: materials.length,
-                    onItemFocus: (index) {
-                      // do something when item is focused
-                    },
+                    onItemFocus: (index) {},
                   );
                 }
               },
@@ -286,74 +344,4 @@ class _EquipmentState extends State<Equipment> {
       ),
     );
   }
-
-  // Widget _buildListItem(BuildContext context, int index) {
-  //    FutureBuilder(
-  //     future: fetchMaterial(),
-  //     builder: (context, snapshot) {
-  //       if (snapshot.connectionState == ConnectionState.waiting) {
-  //         return Center(
-  //           child: CircularProgressIndicator(),
-  //         );
-  //       } else if (snapshot.hasError) {
-  //         return Text('${snapshot.error}');
-  //       } else {
-  //         var materials = snapshot.data as List<dynamic>;
-  //         materials = materials.reversed.toList();
-
-  //         return ScrollSnapList(
-  //           itemSize: 300,
-  //           itemBuilder: (context, index) {
-  //             var material = materials[index];
-
-  //             return Card(
-  //               elevation: 12,
-  //               child: ClipRRect(
-  //                 borderRadius: BorderRadius.all(Radius.circular(10)),
-  //                 child: Column(
-  //                   children: [
-  //                     Image.network(
-  //                       material['media'],
-  //                       fit: BoxFit.cover,
-  //                       height: 200,
-  //                     ),
-  //                     SizedBox(
-  //                       height: 10,
-  //                     ),
-  //                     Text(
-  //                       material["name"],
-  //                       style: TextStyle(
-  //                         fontSize: 15,
-  //                       ),
-  //                     ),
-  //                     Padding(
-  //                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
-  //                       child: Row(
-  //                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                         children: [
-  //                           Text(
-  //                             "\$${material['price']}",
-  //                             style: TextStyle(fontWeight: FontWeight.bold),
-  //                           ),
-  //                           Text(
-  //                             material['unit'],
-  //                             style: TextStyle(color: Colors.blue),
-  //                           ),
-  //                         ],
-  //                       ),
-  //                     )
-  //                   ],
-  //                 ),
-  //               ),
-  //             );
-  //           },
-  //           itemCount: materials.length,
-  //           onItemFocus: (int index) {
-  //             // do something when item is focused
-  //           },
-  //         );
-  //       }
-  //     },
-  //   );
-  // }
 }
