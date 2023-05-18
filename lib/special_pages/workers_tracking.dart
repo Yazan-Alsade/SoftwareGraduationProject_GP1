@@ -1,4 +1,5 @@
 import 'package:construction_company/special_pages/addWorker.dart';
+import 'package:construction_company/special_pages/tasks.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -17,6 +18,43 @@ class _WorkersPageState extends State<WorkersPage> {
     fetchWorkers(); // Fetch workers data when the widget is initialized
   }
 
+  Future<void> fetchTasksForWorker(String workerId,String workername) async {
+    try {
+      final response = await http
+          .get(Uri.parse('http://10.0.2.2:3000/Worker/tasks/$workerId'));
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+        final tasksData = jsonData['tasks'];
+
+        List<Task> tasks = tasksData
+            .map<Task>((tasksData) {
+              return Task(
+                description: tasksData['description'],
+                status: tasksData['status'],
+                startTime: DateTime.parse(tasksData['startTime']),
+                endTime: DateTime.parse(tasksData['endTime']),
+                reward: tasksData['reward'],
+                discount: tasksData['discount'],
+              );
+            })
+            .toList();
+
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return WorkerTasksPage(tasks: tasks,workerName:workername,);
+        }));
+
+        // Process the retrieved tasks data as needed
+        // ...
+      } else {
+        // Handle error
+        print('Failed to fetch tasks. Status code: ${response.statusCode}');
+      }
+    } catch (error) {
+      // Handle error
+      print('Failed to fetch tasks. Error: $error');
+    }
+  }
+
   Future<void> fetchWorkers() async {
     try {
       final response =
@@ -33,6 +71,7 @@ class _WorkersPageState extends State<WorkersPage> {
                     phone: workerData['phone'],
                     salary: workerData['salary'],
                     media: workerData['imageUrl'],
+                    id: workerData['_id'],
                   ))
               .toList();
         });
@@ -71,6 +110,7 @@ class _WorkersPageState extends State<WorkersPage> {
           return WorkerCard(
             worker: worker,
             onTap: () {
+              fetchTasksForWorker(worker.id,worker.name);
               // Handle worker tap
             },
           );
@@ -81,6 +121,7 @@ class _WorkersPageState extends State<WorkersPage> {
 }
 
 class Worker {
+  final String id;
   final String name;
   final String address;
   final String phone;
@@ -88,6 +129,7 @@ class Worker {
   final String media;
 
   Worker({
+    required this.id,
     required this.name,
     required this.address,
     required this.phone,

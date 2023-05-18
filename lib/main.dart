@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
-      home: WorkersPage(),
+      home: Home(),
       routes: {
         'home': (BuildContext context) => Home(),
       },

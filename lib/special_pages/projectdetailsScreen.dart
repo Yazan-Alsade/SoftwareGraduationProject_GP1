@@ -1,17 +1,11 @@
-import 'dart:convert';
-import 'dart:io';
-import 'package:construction_company/special_pages/projectOverview.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:path/path.dart';
-import 'package:quickalert/models/quickalert_type.dart';
-import 'package:quickalert/widgets/quickalert_dialog.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ProjectDetailsScreen extends StatefulWidget {
-  final String ProjecctNumber;
+  final String projectId;
 
-  const ProjectDetailsScreen({Key? key, required this.ProjecctNumber})
+  const ProjectDetailsScreen({Key? key, required this.projectId})
       : super(key: key);
 
   @override
@@ -19,312 +13,240 @@ class ProjectDetailsScreen extends StatefulWidget {
 }
 
 class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> {
-  final _formKey = GlobalKey<FormState>();
+  List<dynamic> tasks = [];
 
-  final _nameController = TextEditingController();
-  final _ProjeNumberController = TextEditingController();
-  final _descriptionController = TextEditingController();
-  final _staffController = TextEditingController();
-  final _companyController = TextEditingController();
-  String _statusController = "pending";
-  final _materialsController = TextEditingController();
-  var _priceController = TextEditingController();
-  // final _imageUrlController = TextEditingController();
-  File? _image;
+  @override
+  void initState() {
+    super.initState();
+    fetchTasks();
+  }
 
-  Future<void> _pickImage() async {
-    final imagePicker = ImagePicker();
-    final pickedFile = await imagePicker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _image = File(pickedFile.path);
-      });
+  Future<void> fetchTasks() async {
+    try {
+      final url =
+          'http://10.0.2.2:3000/Worker/getProjectTasks/${widget.projectId}';
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        setState(() {
+          tasks = data['tasks'];
+        });
+        if (tasks.isEmpty) {
+          showNoTasksDialog(context);
+        }
+      } else {
+        throw Exception('Failed to fetch tasks');
+      }
+    } catch (error) {
+      print(error.toString());
     }
   }
 
-  Future<void> addProject(BuildContext context) async {
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
-    try {
-      // Check if a project with the same name already exists
-      double price = double.parse(_priceController.text);
-      double projNum = double.parse(_ProjeNumberController.text);
-      print(_image!.path);
-      var request = http.MultipartRequest(
-          "POST", Uri.parse('http://10.0.2.2:3000/Details/AddDetails'));
-      var length = await _image!.length();
-      var stream = http.ByteStream(_image!.openRead());
-      var multipartData = http.MultipartFile('media', stream, length,
-          filename: basename(_image!.path));
-      request.files.add(multipartData);
-      request.fields['name'] = _nameController.text;
-      request.fields['description'] = _descriptionController.text;
-      request.fields['status'] = _statusController;
-      request.fields['company'] = _companyController.text;
-      request.fields['staff'] = _staffController.text;
-      request.fields['price'] = price.toStringAsFixed(2);
-      request.fields['materials'] = _materialsController.text;
-      request.fields['ProjecctNumber'] = projNum.toStringAsFixed(2);
-
-      var myRequest = await request.send();
-      var response = await http.Response.fromStream(myRequest);
-      print(response.body);
-      if (myRequest.statusCode != 200) {
-        QuickAlert.show(
-          confirmBtnText: 'Save',
-          confirmBtnColor: Color(0xfff7b858),
-          onConfirmBtnTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) {
-              return ProjectScreen();
-            }));
-          },
-          context: context,
-          type: QuickAlertType.success,
-          text: 'New Project Details Created Successfully!',
+  void showNoTasksDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('No Tasks'),
+          content: Text('This project does not have any tasks.'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
         );
-      } else {
-        // print('error${myRequest}');
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Error creating project details")));
-      }
-    } on Exception catch (e) {
-      print(e);
-      // TODO
+      },
+    );
+  }
+
+  double calculateCompletionPercentage() {
+    if (tasks.isEmpty) {
+      return 0.0;
     }
+
+    int completedTasks = 0;
+    for (var task in tasks) {
+      if (task['status'] == 'completed') {
+        completedTasks++;
+      }
+    }
+
+    return (completedTasks / tasks.length) * 100;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.ProjecctNumber),
-        centerTitle: true,
+        title: Text('Project Details'),
         backgroundColor: Color(0xfff7b858),
+        centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
               children: [
-                Container(
-                  child: Text(
-                    'project ${widget.ProjecctNumber}',
-                    style:
-                        TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
+                Icon(Icons.assignment, size: 28),
+                SizedBox(width: 8),
+                Text(
+                  'Tasks (${tasks.length})', // Displaying the task count
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
                   ),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                Container(
-                  margin: EdgeInsets.all(10),
-                  child: Card(
-                    child: Container(
-                      padding: EdgeInsets.all(6),
-                      child: TextFormField(
-                        controller: _nameController,
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          labelText: 'Name',
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter project name';
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-                  ),
-                ),
-                Container(
-                  margin: EdgeInsets.all(10),
-                  child: Card(
-                    child: Container(
-                      padding: EdgeInsets.all(6),
-                      child: TextFormField(
-                        controller: _descriptionController,
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          labelText: 'Description',
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter project description';
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-                  ),
-                ),
-                Container(
-                  margin: EdgeInsets.all(10),
-                  child: Card(
-                    child: Container(
-                      padding: EdgeInsets.all(6),
-                      child: DropdownButtonFormField<String>(
-                        value: _statusController,
-                        decoration: InputDecoration(
-                            labelText: 'Status', border: InputBorder.none),
-                        items: [
-                          DropdownMenuItem(
-                              child: Text('Pending'), value: 'pending'),
-                          DropdownMenuItem(
-                              child: Text('Overdue'), value: 'overdue'),
-                          DropdownMenuItem(
-                              child: Text('Completed'), value: 'completed'),
-                        ],
-                        onChanged: (value) {
-                          setState(() {
-                            _statusController = value!;
-                          });
-                        },
-                      ),
-                    ),
-                  ),
-                ),
-                Container(
-                  margin: EdgeInsets.all(10),
-                  child: Card(
-                    child: Container(
-                      padding: EdgeInsets.all(6),
-                      child: TextFormField(
-                        controller: _companyController,
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          labelText: 'Company',
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter company name';
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-                  ),
-                ),
-                Container(
-                  margin: EdgeInsets.all(10),
-                  child: Card(
-                    child: Container(
-                      padding: EdgeInsets.all(6),
-                      child: TextFormField(
-                        controller: _staffController,
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          labelText: 'Staff',
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter project staff';
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-                  ),
-                ),
-                Container(
-                  margin: EdgeInsets.all(10),
-                  child: Card(
-                    child: Container(
-                      padding: EdgeInsets.all(6),
-                      child: TextFormField(
-                        controller: _materialsController,
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          labelText: 'Materials',
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter project materials';
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-                  ),
-                ),
-                Container(
-                  margin: EdgeInsets.all(10),
-                  child: Card(
-                    child: Container(
-                      padding: EdgeInsets.all(6),
-                      child: TextFormField(
-                        controller: _priceController,
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          labelText: 'Price',
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter project price';
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-                  ),
-                ),
-                Container(
-                  margin: EdgeInsets.all(10),
-                  child: Card(
-                    child: Container(
-                      padding: EdgeInsets.all(6),
-                      child: TextFormField(
-                        controller: _ProjeNumberController,
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          labelText: 'Project Number',
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter project number';
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-                  ),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    primary: Color(0xfff7b858),
-                  ),
-                  onPressed: _pickImage,
-                  child: Text(
-                    'Choose Image',
-                  ),
-                ),
-                SizedBox(height: 16.0),
-                if (_image != null) ...[
-                  Image.file(
-                    _image!,
-                    height: 200,
-                  ),
-                  SizedBox(height: 10),
-                ],
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    primary: Color(0xfff7b858),
-                  ),
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      addProject(context);
-                    }
-                  },
-                  child: Text('Add Project'),
                 ),
               ],
             ),
           ),
-        ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
+              'Completion: ${calculateCompletionPercentage().toStringAsFixed(2)} %', // Displaying the completion percentage
+              style: TextStyle(
+                fontSize: 18,
+                color: Colors.teal,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: tasks.length,
+              itemBuilder: (BuildContext context, int index) {
+                return Card(
+                  margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Task ${index + 1}',
+                          style: TextStyle(
+                            fontSize: 20,
+                            color: Color(0xfff7b858),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        DataTable(
+                          columnSpacing: 16,
+                          headingRowHeight: 48,
+                          dataRowHeight: 56,
+                          horizontalMargin: 0,
+                          columns: [
+                            DataColumn(
+                              label: Text(
+                                'Field',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            DataColumn(
+                              label: Text(
+                                'Value',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                          rows: [
+                            DataRow(cells: [
+                              DataCell(
+                                Text(
+                                  'Description',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              DataCell(
+                                Text(
+                                  tasks[index]['description'],
+                                ),
+                              ),
+                            ]),
+                            DataRow(cells: [
+                              DataCell(
+                                Text(
+                                  'Status',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              DataCell(Text(tasks[index]['status'])),
+                            ]),
+                            DataRow(cells: [
+                              DataCell(
+                                Text(
+                                  'Start Time',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              DataCell(Text(tasks[index]['startTime'])),
+                            ]),
+                            DataRow(cells: [
+                              DataCell(
+                                Text(
+                                  'End Time',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              DataCell(Text(tasks[index]['endTime'])),
+                            ]),
+                            DataRow(cells: [
+                              DataCell(
+                                Text(
+                                  'Reward',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              DataCell(
+                                Text(tasks[index]['reward'].toString()),
+                              ),
+                            ]),
+                            DataRow(cells: [
+                              DataCell(
+                                Text(
+                                  'Discount',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              DataCell(
+                                Text(tasks[index]['discount'].toString()),
+                              ),
+                            ]),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

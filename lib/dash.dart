@@ -47,7 +47,7 @@ class _DashboardState extends State<Dashboard> {
     WorkersPage(),
     notifications(),
     Salary(),
-    Tasks(),
+    WorkerTasksPage(tasks: [],workerName: ''),
     Account(),
     Logout(),
   ];
