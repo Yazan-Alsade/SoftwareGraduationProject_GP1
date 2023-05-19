@@ -18,6 +18,8 @@ class _WorkersPageState extends State<WorkersPage> {
     fetchWorkers(); // Fetch workers data when the widget is initialized
   }
 
+
+
   Future<void> fetchTasksForWorker(String workerId,String workername) async {
     try {
       final response = await http
@@ -82,6 +84,71 @@ class _WorkersPageState extends State<WorkersPage> {
     } catch (error) {
       // Handle error
       print('Failed to fetch workers. Error: $error');
+    }
+  }
+
+  Future<void> fetchAttendanceForWorker(String workerId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('http://10.0.2.2:3000/Worker/ShowAttendance/$workerId'),
+      );
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+
+        List<DateTime> presentDates = [];
+        List<DateTime> absentDates = [];
+
+        if (jsonData.containsKey('presentDates')) {
+          final presentDatesData = jsonData['presentDates'];
+          presentDates = presentDatesData.map<DateTime>((dateString) {
+            return DateTime.parse(dateString);
+          }).toList();
+        }
+
+        if (jsonData.containsKey('absentDates')) {
+          final absentDatesData = jsonData['absentDates'];
+          absentDates = absentDatesData.map<DateTime>((dateString) {
+            return DateTime.parse(dateString);
+          }).toList();
+        }
+
+        int totalWorkingDays = jsonData['totalWorkingDays'];
+        int totalPresentDays = presentDates.length;
+        int totalAbsentDays = absentDates.length;
+
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text('Attendance Details'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('Present Dates: ${presentDates.join(", ")}'),
+                  Text('Absent Dates: ${absentDates.join(", ")}'),
+                  Text('Total Working Days: $totalWorkingDays'),
+                  Text('Total Present Days: $totalPresentDays'),
+                  Text('Total Absent Days: $totalAbsentDays'),
+                ],
+              ),
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        // Handle error
+        print('Failed to fetch attendance. Status code: ${response.statusCode}');
+      }
+    } catch (error) {
+      // Handle error
+      print('Failed to fetch attendance. Error: $error');
     }
   }
 

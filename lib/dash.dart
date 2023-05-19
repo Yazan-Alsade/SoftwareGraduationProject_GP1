@@ -1,4 +1,5 @@
 import 'package:construction_company/special_pages/account.dart';
+import 'package:construction_company/special_pages/allTasksInCompany.dart';
 import 'package:construction_company/special_pages/equipmentDetails.dart';
 import 'package:construction_company/special_pages/notification.dart';
 import 'package:construction_company/special_pages/equipment.dart';
@@ -47,7 +48,7 @@ class _DashboardState extends State<Dashboard> {
     WorkersPage(),
     notifications(),
     Salary(),
-    WorkerTasksPage(tasks: [],workerName: ''),
+    AllTasksInCompany(),
     Account(),
     Logout(),
   ];

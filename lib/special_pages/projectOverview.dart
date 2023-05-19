@@ -246,21 +246,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
                                                 color: Colors.grey[600],
                                               ),
                                             ),
-                                            // SizedBox(
-                                            //   height: 10,
-                                            // ),
-                                            // Container(
-                                            //   height: 30,
-                                            //   color: Color(0xfff7b858),
-                                            //   child: TextButton(
-                                            //     onPressed: () {},
-                                            //     child: Text(
-                                            //       'Show More',
-                                            //       style: TextStyle(
-                                            //           color: Colors.white),
-                                            //     ),
-                                            //   ),
-                                            // ),
+                                           
                                           ],
                                         ),
                                       ),
