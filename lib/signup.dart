@@ -1,3 +1,5 @@
+import 'package:construction_company/confirm.dart';
+
 import 'home.dart';
 import 'login.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +31,6 @@ class _SignUpState extends State<SignUp> {
   var passwordd;
   var confirmp;
   var birthdate;
-  var balance;
 
   // controller
   TextEditingController _date = TextEditingController();
@@ -37,7 +38,6 @@ class _SignUpState extends State<SignUp> {
   TextEditingController _email = TextEditingController();
   TextEditingController _password = TextEditingController();
   TextEditingController _confirmPassword = TextEditingController();
-  TextEditingController _balance = TextEditingController();
   var country;
 ///////////// for Create Account //////////////
   insert() async {
@@ -52,7 +52,6 @@ class _SignUpState extends State<SignUp> {
         "confirmPassword": _confirmPassword.text.toString().trim(),
         "age": _date.text.toString().trim(),
         "country": country.toString().trim(),
-        "balance": _balance.text.toString().trim(),
       };
       var body = json.encode(map);
       var encoding = Encoding.getByName('utf-8');
@@ -69,29 +68,187 @@ class _SignUpState extends State<SignUp> {
       if (res.statusCode == 201) {
         final responsedata = jsonDecode(res.body);
         final userId = responsedata['savedUser'];
-        Fluttertoast.showToast(
-            msg: 'Signup Successful ! Please verify your email',
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            backgroundColor: Colors.green,
-            textColor: Colors.white);
-
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => Home()),
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text(
+                'The Account has been Creted Successfully',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.check_circle_outline,
+                    size: 48,
+                    color: Colors.green,
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    'Plese verify the email.',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ],
+              ),
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                          builder: (context) => EmailVerificationPage()),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.green,
+                  ),
+                  child: Text(
+                    'OK',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
         );
       } else {
         final responsedata = jsonDecode(res.body);
-        Fluttertoast.showToast(
-            msg: responsedata['message'],
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            backgroundColor: Colors.red,
-            textColor: Colors.white);
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text(
+                'Singup Error',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.error_outline,
+                    size: 48,
+                    color: Colors.teal,
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    responsedata['message'],
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ],
+              ),
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.teal,
+                  ),
+                  child: Text(
+                    'OK',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
       }
     }
   }
   ///////////////// Create Account /////////////
+
+  /////////// verify email///////////
+
+  Future<void> verifyEmail(String verificationCode) async {
+    try {
+      final response = await http.post(
+        Uri.parse('http://your-backend-api/confirmEmail'),
+        body: jsonEncode({
+          'verificationCode': verificationCode,
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        // Email verification successful, show success message and navigate to login screen
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Email Verification'),
+              content: Text('Email verified successfully.'),
+              actions: <Widget>[
+                TextButton(
+                  child: Text('OK'),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => EmailVerificationPage()),
+                    );
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        // Handle email verification error
+        final errorMessage = jsonDecode(response.body)['message'];
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Email Verification Error'),
+              content: Text(errorMessage),
+              actions: <Widget>[
+                TextButton(
+                  child: Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } catch (error) {
+      // Handle network error
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Network Error'),
+            content: Text('Failed to connect to the server. Please try again.'),
+            actions: <Widget>[
+              TextButton(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  ///
 
   @override
   Widget build(BuildContext context) {
@@ -313,40 +470,7 @@ class _SignUpState extends State<SignUp> {
                                         border: InputBorder.none),
                                   ),
                                 ),
-                                SizedBox(
-                                  height: 10,
-                                ),
-                                Card(
-                                  elevation: 8,
-                                  child: TextFormField(
-                                    autovalidateMode:
-                                        AutovalidateMode.onUserInteraction,
-                                    validator: (value) {
-                                      if (value!.isEmpty) {
-                                        return 'Please enter your balance';
-                                      }
-                                      return null;
-                                    },
-                                    onChanged: (value) {
-                                      setState(() {
-                                        balance = value;
-                                      });
-                                    },
-                                    controller: _balance,
-                                    decoration: InputDecoration(
-                                        prefixIcon: Icon(
-                                          Icons.attach_money_rounded,
-                                          color: (Color(0xfff7b858)),
-                                        ),
-                                        // contentPadding: EdgeInsets.all(10),
-                                        hintText: 'Enter your balance',
-                                        hintStyle: TextStyle(
-                                            fontSize: 17,
-                                            color: Color.fromARGB(
-                                                255, 141, 140, 140)),
-                                        border: InputBorder.none),
-                                  ),
-                                ),
+
                                 SizedBox(
                                   height: 10,
                                 ),
@@ -588,13 +712,15 @@ class _SignUpState extends State<SignUp> {
                           onTap: () {
                             Navigator.push(context,
                                 MaterialPageRoute(builder: (context) {
-                              return Login();
+                              return Login(
+                                name: _username.text.toString().trim(),
+                              );
                             }));
                           },
                           child: Text(
                             'Sign in',
                             style: TextStyle(
-                                fontWeight: FontWeight.w400,
+                                fontWeight: FontWeight.bold,
                                 color: Color.fromARGB(255, 221, 163, 76),
                                 fontSize: 20),
                           ),

@@ -1,3 +1,6 @@
+
+
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -14,11 +17,13 @@ class ProjectDetailsScreen extends StatefulWidget {
 
 class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> {
   List<dynamic> tasks = [];
+  List<dynamic> workers = [];
 
   @override
   void initState() {
     super.initState();
     fetchTasks();
+    fetchWorkers();
   }
 
   Future<void> fetchTasks() async {
@@ -36,6 +41,23 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> {
         }
       } else {
         throw Exception('Failed to fetch tasks');
+      }
+    } catch (error) {
+      print(error.toString());
+    }
+  }
+
+  Future<void> fetchWorkers() async {
+    try {
+      final response =
+          await http.get(Uri.parse('http://10.0.2.2:3000/Worker/GetAllWorker'));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        setState(() {
+          workers = data['workers'];
+        });
+      } else {
+        throw Exception('Failed to fetch workers');
       }
     } catch (error) {
       print(error.toString());
@@ -77,8 +99,22 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> {
     return (completedTasks / tasks.length) * 100;
   }
 
+  String getWorkerName(String workerId) {
+    final worker =
+        workers.firstWhere((w) => w['_id'] == workerId, orElse: () => null);
+    return worker != null ? worker['name'] : '';
+  }
+
   @override
   Widget build(BuildContext context) {
+    final List<String> imageUrls = [
+      "images/istockphoto-1404515405-612x612.jpg",
+      "images/istockphoto-1404515487-612x612.jpg",
+      "images/istockphoto-1404515422-612x612.jpg",
+      "images/istockphoto-1015315514-612x612.jpg",
+      "images/istockphoto-1297546608-612x612.jpg",
+      "images/istockphoto-1297780279-612x612.jpg",
+    ];
     return Scaffold(
       appBar: AppBar(
         title: Text('Project Details'),
@@ -88,6 +124,32 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Container(
+            // margin: EdgeInsets.only(top: 5),
+            width: MediaQuery.of(context).size.width,
+            child: CarouselSlider(
+                items: imageUrls.map((url) {
+                  return Container(
+                    child: Image.asset(
+                      width: MediaQuery.of(context).size.width,
+                      url,
+                      fit: BoxFit.cover,
+                    ),
+                  );
+                }).toList(),
+                options: CarouselOptions(
+                    height: 200.0,
+                    aspectRatio: 16 / 9,
+                    viewportFraction: 1,
+                    initialPage: 0,
+                    enableInfiniteScroll: true,
+                    autoPlay: true,
+                    autoPlayInterval: Duration(seconds: 3),
+                    autoPlayAnimationDuration: Duration(microseconds: 800),
+                    autoPlayCurve: Curves.fastOutSlowIn,
+                    enlargeCenterPage: true,
+                    onPageChanged: (index, reason) {})),
+          ),
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Row(
@@ -163,6 +225,19 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> {
                             ),
                           ],
                           rows: [
+                            DataRow(cells: [
+                              DataCell(
+                                Text(
+                                  'Worker',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              DataCell(
+                                Text(getWorkerName(tasks[index]['worker'])),
+                              ),
+                            ]),
                             DataRow(cells: [
                               DataCell(
                                 Text(

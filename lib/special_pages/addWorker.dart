@@ -20,6 +20,9 @@ class _AddWorkerState extends State<AddWorker> {
   final _addressController = TextEditingController();
   final _phoneController = TextEditingController();
   final _salaryController = TextEditingController();
+  final latitude = TextEditingController();
+    final lagnitude = TextEditingController();
+
   // String _status = 'pending';
   File? _image;
 
@@ -50,6 +53,8 @@ class _AddWorkerState extends State<AddWorker> {
       request.fields['address'] = _addressController.text;
       request.fields['phone'] = _phoneController.text;
       request.fields['salary'] = _salaryController.text;
+      request.fields['latitude'] = latitude.text;
+      request.fields['longitude'] = lagnitude.text;
       var myRequest = await request.send();
       var response = await http.Response.fromStream(myRequest);
       // print(response.body);
@@ -181,6 +186,38 @@ class _AddWorkerState extends State<AddWorker> {
                   ),
                 ),
                 SizedBox(height: 16.0),
+                  Card(
+                  child: Container(
+                    padding: EdgeInsets.only(left: 20),
+                    child: TextFormField(
+                      controller: latitude,
+                      decoration: InputDecoration(
+                          labelText: 'Latitude', border: InputBorder.none),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a Latitude';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                ),
+                  Card(
+                  child: Container(
+                    padding: EdgeInsets.only(left: 20),
+                    child: TextFormField(
+                      controller: lagnitude,
+                      decoration: InputDecoration(
+                          labelText: 'Lagnitude', border: InputBorder.none),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a Lagnitude';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     primary: Color(0xfff7b858),

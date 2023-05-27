@@ -1,4 +1,6 @@
 import 'package:construction_company/dash.dart';
+import 'package:construction_company/forgetPassword.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'home.dart';
 import 'signup.dart';
 import 'package:flutter/material.dart';
@@ -6,12 +8,13 @@ import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'home.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // import 'package:fluttertoast/fluttertoast.dart';
 class Login extends StatefulWidget {
-  const Login({super.key});
+  final String name;
+  const Login({super.key, required this.name});
 
   @override
   State<Login> createState() => _LoginState();
@@ -29,68 +32,133 @@ class _LoginState extends State<Login> {
   /////// Sign In ///////////
 
   void _handleLogin() async {
-    final email = _email.text;
-    final password = _password.text;
+    // final email = _email.text;
+    // final password = _password.text;
 
     // Validate form inputs
-    if (forms.currentState!.validate()) {
-      return;
-    }
 
     // Send POST request to login API endpoint
-    final response = await http.post(
+    Map<String, dynamic> map = {
+      "email": _email.text.toString().trim(),
+      "password": _password.text.toString().trim(),
+    };
+
+    var body = json.encode(map);
+    var encoding = Encoding.getByName('utf-8');
+    const headers = {'Content-Type': 'application/json'};
+
+    var res = await http.post(
       Uri.parse('http://10.0.2.2:3000/api/v1/auth/login'),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode({'email': email, 'password': password}),
+      headers: headers,
+      body: body,
+      encoding: encoding,
     );
+    print(res.statusCode);
 
-    // Handle response from API
-    if (response.statusCode == 200) {
-      final responseData = json.decode(response.body);
-      final token = responseData['token'];
-
-      // Save token to local storage or secure storage
-      // ...
-
-      // Navigate to home page
-      Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return Home();
-      }));
-    } else if (response.statusCode == 400) {
-      final responseData = json.decode(response.body);
-      final message = responseData['message'];
-
-      // Show error message
+    if (res.statusCode == 200) {
+      final responsedata = jsonDecode(res.body);
+      final userId = responsedata['savedUser'];
+      SharedPreferences pref = await SharedPreferences.getInstance();
+      pref.setString('email', _email.text);
       showDialog(
         context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Error'),
-          content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text('OK'),
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(
+              'Welcome, ${widget.name}!',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ],
-        ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.check_circle_outline,
+                  size: 48,
+                  color: Colors.green,
+                ),
+                SizedBox(height: 16),
+                Text(
+                  'You have successfully logged in.',
+                  style: TextStyle(fontSize: 16),
+                ),
+              ],
+            ),
+            actions: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (context) => Home()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.green,
+                ),
+                child: Text(
+                  'OK',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       );
     } else {
-      // Handle other error codes
+      final responsedata = jsonDecode(res.body);
       showDialog(
         context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Error'),
-          content: Text('An error occurred.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text('OK'),
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(
+              'Login Error',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ],
-        ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.error_outline,
+                  size: 48,
+                  color: Colors.teal,
+                ),
+                SizedBox(height: 16),
+                Text(
+                  responsedata['message'],
+                  style: TextStyle(fontSize: 16),
+                ),
+              ],
+            ),
+            actions: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.teal,
+                ),
+                child: Text(
+                  'OK',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       );
     }
   }
+
   ////////// For Sign In //////////////
 
   @override
@@ -285,7 +353,11 @@ class _LoginState extends State<Login> {
               //             BorderSide(color: (Color(0xfff7b858)), width: 1.5))),
               // margin: EdgeInsets.only(top: 20, bottom: 20),
               child: InkWell(
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return ForgetPasswordPage();
+                  }));
+                },
                 child: Text(
                   'Forget Password ?',
                   textAlign: TextAlign.center,
@@ -386,12 +458,17 @@ class _LoginState extends State<Login> {
                     },
                     child: Text(
                       'Sign up',
-                      style:
-                          TextStyle(color: (Color(0xfff7b858)), fontSize: 19),
+                      style: TextStyle(
+                          color: (Color(0xfff7b858)),
+                          fontSize: 19,
+                          fontWeight: FontWeight.bold),
                     ),
-                  )
+                  ),
                 ],
               ),
+            ),
+            SizedBox(
+              height: 20,
             )
           ],
         ),

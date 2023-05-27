@@ -3,6 +3,9 @@ import 'package:construction_company/special_pages/tasks.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:fluttertoast/fluttertoast.dart';
+
+import 'addAttendance.dart';
 
 class WorkersPage extends StatefulWidget {
   @override
@@ -18,9 +21,14 @@ class _WorkersPageState extends State<WorkersPage> {
     fetchWorkers(); // Fetch workers data when the widget is initialized
   }
 
+  ///////////////
+  ///
+  ///////////
+  ////////////////////////////////////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////////////////////////////////
 
-  Future<void> fetchTasksForWorker(String workerId,String workername) async {
+  Future<void> fetchTasksForWorker(String workerId, String workername) async {
     try {
       final response = await http
           .get(Uri.parse('http://10.0.2.2:3000/Worker/tasks/$workerId'));
@@ -28,21 +36,23 @@ class _WorkersPageState extends State<WorkersPage> {
         final jsonData = json.decode(response.body);
         final tasksData = jsonData['tasks'];
 
-        List<Task> tasks = tasksData
-            .map<Task>((tasksData) {
-              return Task(
-                description: tasksData['description'],
-                status: tasksData['status'],
-                startTime: DateTime.parse(tasksData['startTime']),
-                endTime: DateTime.parse(tasksData['endTime']),
-                reward: tasksData['reward'],
-                discount: tasksData['discount'],
-              );
-            })
-            .toList();
+        List<Task> tasks = tasksData.map<Task>((tasksData) {
+          return Task(
+              description: tasksData['description'],
+              status: tasksData['status'],
+              startTime: DateTime.parse(tasksData['startTime']),
+              endTime: DateTime.parse(tasksData['endTime']),
+              reward: tasksData['reward'],
+              discount: tasksData['discount'],
+              taskId: tasksData['_id']);
+        }).toList();
 
         Navigator.push(context, MaterialPageRoute(builder: (context) {
-          return WorkerTasksPage(tasks: tasks,workerName:workername,);
+          return WorkerTasksPage(
+            workerId: workerId,
+            tasks: tasks,
+            workerName: workername,
+          );
         }));
 
         // Process the retrieved tasks data as needed
@@ -68,13 +78,13 @@ class _WorkersPageState extends State<WorkersPage> {
         setState(() {
           workers = workersData
               .map<Worker>((workerData) => Worker(
-                    name: workerData['name'],
-                    address: workerData['address'],
-                    phone: workerData['phone'],
-                    salary: workerData['salary'],
-                    media: workerData['imageUrl'],
-                    id: workerData['_id'],
-                  ))
+                  name: workerData['name'],
+                  address: workerData['address'],
+                  phone: workerData['phone'],
+                  salary: workerData['salary'],
+                  media: workerData['imageUrl'],
+                  id: workerData['_id'],
+                  projectId: workerData['project'].toString()))
               .toList();
         });
       } else {
@@ -84,71 +94,6 @@ class _WorkersPageState extends State<WorkersPage> {
     } catch (error) {
       // Handle error
       print('Failed to fetch workers. Error: $error');
-    }
-  }
-
-  Future<void> fetchAttendanceForWorker(String workerId) async {
-    try {
-      final response = await http.get(
-        Uri.parse('http://10.0.2.2:3000/Worker/ShowAttendance/$workerId'),
-      );
-      if (response.statusCode == 200) {
-        final jsonData = json.decode(response.body);
-
-        List<DateTime> presentDates = [];
-        List<DateTime> absentDates = [];
-
-        if (jsonData.containsKey('presentDates')) {
-          final presentDatesData = jsonData['presentDates'];
-          presentDates = presentDatesData.map<DateTime>((dateString) {
-            return DateTime.parse(dateString);
-          }).toList();
-        }
-
-        if (jsonData.containsKey('absentDates')) {
-          final absentDatesData = jsonData['absentDates'];
-          absentDates = absentDatesData.map<DateTime>((dateString) {
-            return DateTime.parse(dateString);
-          }).toList();
-        }
-
-        int totalWorkingDays = jsonData['totalWorkingDays'];
-        int totalPresentDays = presentDates.length;
-        int totalAbsentDays = absentDates.length;
-
-        showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: Text('Attendance Details'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('Present Dates: ${presentDates.join(", ")}'),
-                  Text('Absent Dates: ${absentDates.join(", ")}'),
-                  Text('Total Working Days: $totalWorkingDays'),
-                  Text('Total Present Days: $totalPresentDays'),
-                  Text('Total Absent Days: $totalAbsentDays'),
-                ],
-              ),
-              actions: [
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: Text('OK'),
-                ),
-              ],
-            );
-          },
-        );
-      } else {
-        // Handle error
-        print('Failed to fetch attendance. Status code: ${response.statusCode}');
-      }
-    } catch (error) {
-      // Handle error
-      print('Failed to fetch attendance. Error: $error');
     }
   }
 
@@ -170,16 +115,22 @@ class _WorkersPageState extends State<WorkersPage> {
         backgroundColor: Color(0xfff7b858),
       ),
       body: GridView.count(
+        mainAxisSpacing: 20,
+        crossAxisSpacing: 10,
         crossAxisCount: 2,
         padding: EdgeInsets.all(16.0),
         children: List.generate(workers.length, (index) {
           final worker = workers[index];
-          return WorkerCard(
-            worker: worker,
-            onTap: () {
-              fetchTasksForWorker(worker.id,worker.name);
-              // Handle worker tap
-            },
+          return SingleChildScrollView(
+            child: WorkerCard(
+              worker: worker,
+              onTap: () {
+                fetchTasksForWorker(worker.id, worker.name);
+                // Handle worker tap
+              },
+              onAddTask: () {
+              },
+            ),
           );
         }),
       ),
@@ -194,6 +145,7 @@ class Worker {
   final String phone;
   final String salary;
   final String media;
+  final String projectId;
 
   Worker({
     required this.id,
@@ -202,18 +154,20 @@ class Worker {
     required this.phone,
     required this.salary,
     required this.media,
+    required this.projectId,
   });
 }
 
 class WorkerCard extends StatelessWidget {
   final Worker worker;
   final VoidCallback onTap;
+  final VoidCallback onAddTask;
 
   const WorkerCard({
     required this.worker,
     required this.onTap,
+    required this.onAddTask,
   });
-
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -254,6 +208,27 @@ class WorkerCard extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                   color: Colors.grey),
             ),
+            // SizedBox(height: 16.0),
+            Tooltip(
+              decoration:
+                  BoxDecoration(color: Color.fromARGB(221, 84, 179, 89)),
+              message: "click to add attendance for you",
+              child: TextButton(
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return AttendanceFormPage(
+                      workerId: worker.id,
+                      workerName: worker.name,
+                    );
+                  }));
+                },
+                child: Text(
+                  'Attendance',
+                  style: TextStyle(color: Colors.teal),
+                ),
+              ),
+            ),
+            ElevatedButton(onPressed: onAddTask, child: Text("Add Task"))
           ],
         ),
       ),

@@ -1,6 +1,8 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:construction_company/dash.dart';
+import 'package:construction_company/login.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dash.dart';
 
 class Home extends StatefulWidget {
@@ -23,6 +25,47 @@ class _HomeState extends State<Home> {
   ];
   final CarouselController carousel = CarouselController();
   int current = 0;
+
+  String userEmail = '';
+  @override
+  void initState() {
+    super.initState();
+    getUserEmail();
+  }
+
+  void getUserEmail() async {
+    final SharedPreferences pref = await SharedPreferences.getInstance();
+    final String? email = pref.getString('email');
+    if (email != null) {
+      setState(() {
+        userEmail = email;
+      });
+    }
+  }
+
+  Future logout() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    pref.remove('email');
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          content: Text("Sign Out has successfully"),
+          actions: [
+            TextButton(
+                onPressed: () {
+                  Navigator.of(context)
+                      .pushReplacement(MaterialPageRoute(builder: (context) {
+                    return Login(name: '');
+                  }));
+                },
+                child: Text("Ok"))
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,7 +78,15 @@ class _HomeState extends State<Home> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       appBar: AppBar(
-        title: Text('Main Page'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.logout),
+            onPressed: () {
+              logout();
+            },
+          ),
+        ],
+        title: Text('${userEmail}'),
         centerTitle: true,
         backgroundColor: Color(0xfff7b858),
         elevation: 0,
@@ -134,7 +185,7 @@ class _HomeState extends State<Home> {
                     )),
                 SizedBox(
                   height: 20,
-                )
+                ),
               ],
             )),
           ),
