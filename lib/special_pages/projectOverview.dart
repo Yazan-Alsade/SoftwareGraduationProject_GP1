@@ -62,6 +62,11 @@ class _ProjectScreenState extends State<ProjectScreen> {
     super.dispose();
   }
 
+
+  //////////////////
+  
+  /////////////////
+
   void updateDisplayedProjects(String searchTerm) {
     if (searchTerm.isEmpty) {
       setState(() {

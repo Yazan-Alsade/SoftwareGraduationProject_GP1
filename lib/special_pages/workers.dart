@@ -128,8 +128,7 @@ class _WorkersPageState extends State<WorkersPage> {
                 fetchTasksForWorker(worker.id, worker.name);
                 // Handle worker tap
               },
-              onAddTask: () {
-              },
+              onAddTask: () {},
             ),
           );
         }),
@@ -185,22 +184,22 @@ class WorkerCard extends StatelessWidget {
               backgroundImage: NetworkImage(worker.media),
               radius: 40.0,
             ),
-            SizedBox(height: 8.0),
+            // SizedBox(height: 8.0),
             Text(
               worker.name,
               style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 4.0),
+            // SizedBox(height: 4.0),
             Text(
               worker.address,
               style: TextStyle(fontSize: 14.0, color: Colors.grey),
             ),
-            SizedBox(height: 4.0),
+            // SizedBox(height: 4.0),
             Text(
               worker.phone,
               style: TextStyle(fontSize: 14.0, color: Colors.grey),
             ),
-            SizedBox(height: 4.0),
+            // SizedBox(height: 4.0),
             Text(
               'Salary: ${worker.salary}',
               style: TextStyle(
@@ -212,7 +211,7 @@ class WorkerCard extends StatelessWidget {
             Tooltip(
               decoration:
                   BoxDecoration(color: Color.fromARGB(221, 84, 179, 89)),
-              message: "click to add attendance for you",
+              message: "click to add attendance for worker",
               child: TextButton(
                 onPressed: () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) {

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:construction_company/special_pages/Map.dart';
 import 'package:construction_company/special_pages/projectOverview.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -64,7 +65,7 @@ class _AddWorkerState extends State<AddWorker> {
           confirmBtnColor: Color(0xfff7b858),
           onConfirmBtnTap: () {
             Navigator.push(context, MaterialPageRoute(builder: (context) {
-              return ProjectScreen();
+              return MyApp();
             }));
           },
           context: context,

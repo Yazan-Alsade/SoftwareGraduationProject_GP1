@@ -194,10 +194,6 @@ class _MyAppState extends State<MyApp> {
                     return Marker(
                         markerId: MarkerId(worker.id),
                         position: LatLng(worker.latitude, worker.longitude),
-                        // infoWindow: InfoWindow(
-                        //   title: worker.name,
-                        //   snippet: worker.address,
-                        // ),
                         onTap: () => onWorkerMarkerTapped(MarkerId(worker.id)),
                         icon: selectedWorkerMarkerId?.value == worker.id
                             ? BitmapDescriptor.defaultMarkerWithHue(
@@ -209,11 +205,6 @@ class _MyAppState extends State<MyApp> {
                     return Marker(
                       markerId: MarkerId(task.id),
                       position: LatLng(task.latitude, task.longitude),
-                      // infoWindow: InfoWindow(
-                      //   title: task.description,
-                      //   snippet: task.status,
-                      // ),
-
                       onTap: () => onTaskMarkerTapped(MarkerId(
                           task.id)), // Call the handler when marker is tapped
                       icon: selectedTaskMarkerId?.value ==
@@ -234,7 +225,7 @@ class _MyAppState extends State<MyApp> {
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,

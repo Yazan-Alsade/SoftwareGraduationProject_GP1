@@ -65,7 +65,7 @@ class _LoginState extends State<Login> {
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text(
-              'Welcome, ${widget.name}!',
+              'Welcome',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,

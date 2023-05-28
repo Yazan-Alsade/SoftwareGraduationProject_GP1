@@ -159,26 +159,7 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
             ],
           ),
         ),
-        // Container(
-        // margin: EdgeInsets.only(left: 70),
-        // padding: EdgeInsets.all(10),
-        // alignment: AlignmentDirectional.topCenter,
-        // height: 60,
-        // width: 80,
-        // decoration: BoxDecoration(
-        // borderRadius: BorderRadius.circular(10),
-        // boxShadow: [
-        //   BoxShadow(
-        // color: (Color(0xfff7b858)),
-        //     blurRadius: 3,
-        //     // offset: Offset(2, 2),
-        //   ),
-        // color: (Color(0xfff7b858)),
-        // ]
-        // ),
-        //  TextButton(
-        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        // children: [
+       
         Container(
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(25),
