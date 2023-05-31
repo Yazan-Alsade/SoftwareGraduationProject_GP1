@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../login.dart';
 import 'addAttendance.dart';
 
 class WorkersPage extends StatefulWidget {
@@ -18,6 +20,7 @@ class _WorkersPageState extends State<WorkersPage> {
   @override
   void initState() {
     super.initState();
+    getUserEmail();
     fetchWorkers(); // Fetch workers data when the widget is initialized
   }
 
@@ -26,6 +29,40 @@ class _WorkersPageState extends State<WorkersPage> {
   ///////////
   ////////////////////////////////////////////////////////////////////////////////////////
 
+  Future logout() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    pref.remove('email');
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          content: Text("Sign Out has successfully"),
+          actions: [
+            TextButton(
+                onPressed: () {
+                  Navigator.of(context)
+                      .pushReplacement(MaterialPageRoute(builder: (context) {
+                    return Login(name: '');
+                  }));
+                },
+                child: Text("Ok"))
+          ],
+        );
+      },
+    );
+  }
+
+  String userEmail = '';
+  /////////////
+  void getUserEmail() async {
+    final SharedPreferences pref = await SharedPreferences.getInstance();
+    final String? email = pref.getString('email');
+    if (email != null) {
+      setState(() {
+        userEmail = email;
+      });
+    }
+  }
 ///////////////////////////////////////////////////////////////////////////////////////
 
   Future<void> fetchTasksForWorker(String workerId, String workername) async {
@@ -110,6 +147,13 @@ class _WorkersPageState extends State<WorkersPage> {
         child: Icon(Icons.add),
       ),
       appBar: AppBar(
+        actions: [
+          IconButton(
+              onPressed: () {
+                logout();
+              },
+              icon: Icon(Icons.logout))
+        ],
         title: Text('Workers'),
         centerTitle: true,
         backgroundColor: Color(0xfff7b858),

@@ -1,7 +1,8 @@
-import 'package:construction_company/resetPassword.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+import 'resetPassword.dart';
 
 class ForgetPasswordPage extends StatefulWidget {
   @override

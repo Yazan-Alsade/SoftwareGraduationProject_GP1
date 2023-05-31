@@ -1,9 +1,8 @@
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:construction_company/dash.dart';
-import 'package:construction_company/login.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dash.dart';
+import 'login.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});

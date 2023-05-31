@@ -1,5 +1,4 @@
-import 'package:construction_company/confirm.dart';
-
+import 'confirm.dart';
 import 'home.dart';
 import 'login.dart';
 import 'package:flutter/material.dart';
@@ -25,12 +24,21 @@ class _SignUpState extends State<SignUp> {
   bool isloading = false; // for loading
   bool emailExist = false; // for check email
 
+///// selected role/////
+  String selectedRole = 'Engineer';
+  List <String> roles = [
+    'Engineer',
+    'Worker',
+  ];
+
+  ///
   //validation
   var emailaddress;
   var usernamee;
   var passwordd;
   var confirmp;
   var birthdate;
+  var balanced;
 
   // controller
   TextEditingController _date = TextEditingController();
@@ -38,6 +46,7 @@ class _SignUpState extends State<SignUp> {
   TextEditingController _email = TextEditingController();
   TextEditingController _password = TextEditingController();
   TextEditingController _confirmPassword = TextEditingController();
+  TextEditingController balance = TextEditingController();
   var country;
 ///////////// for Create Account //////////////
   insert() async {
@@ -52,6 +61,8 @@ class _SignUpState extends State<SignUp> {
         "confirmPassword": _confirmPassword.text.toString().trim(),
         "age": _date.text.toString().trim(),
         "country": country.toString().trim(),
+        "balance": balance.text.toString().trim(),
+        "role":selectedRole,
       };
       var body = json.encode(map);
       var encoding = Encoding.getByName('utf-8');
@@ -470,10 +481,44 @@ class _SignUpState extends State<SignUp> {
                                         border: InputBorder.none),
                                   ),
                                 ),
-
                                 SizedBox(
                                   height: 10,
                                 ),
+                                Card(
+                                  elevation: 8,
+                                  child: TextFormField(
+                                    autovalidateMode:
+                                        AutovalidateMode.onUserInteraction,
+                                    validator: (value) {
+                                      if (value!.isEmpty) {
+                                        return 'Please enter your balance';
+                                      }
+                                    },
+                                    onChanged: (value) {
+                                      setState(() {
+                                        balanced = value;
+                                      });
+                                    },
+                                    controller: balance,
+                                    decoration: InputDecoration(
+                                        prefixIcon: Icon(
+                                          Icons.attach_money,
+                                          color: (Color(0xfff7b858)),
+                                        ),
+                                        // contentPadding: EdgeInsets.all(10),
+                                        hintText: 'Enter your balance',
+                                        hintStyle: TextStyle(
+                                            fontSize: 17,
+                                            color: Color.fromARGB(
+                                                255, 141, 140, 140)),
+                                        border: InputBorder.none),
+                                  ),
+                                ),
+
+                                SizedBox(
+                                  height: 15,
+                                ),
+
                                 Card(
                                   elevation: 8,
                                   child: TextFormField(
@@ -575,6 +620,45 @@ class _SignUpState extends State<SignUp> {
                                         value: country,
                                       )),
                                 ),
+                                SizedBox(height: 5,),
+                                DropdownButtonFormField<String>(
+  autovalidateMode: AutovalidateMode.onUserInteraction,
+  validator: (value) {
+    if (value == null || value.isEmpty) {
+      return 'Please select a role';
+    }
+    return null;
+  },
+  value: selectedRole,
+  onChanged: (value) {
+    setState(() {
+      selectedRole = value!;
+    });
+  },
+  decoration: InputDecoration(
+    prefixIcon: Icon(
+      Icons.work_outline,
+      color: (Color(0xfff7b858)),
+    ),
+    hintText: 'Select your role',
+    hintStyle: TextStyle(
+      fontSize: 17,
+      color: Color.fromARGB(255, 141, 140, 140),
+    ),
+    border: InputBorder.none,
+  ),
+  items: [
+    DropdownMenuItem<String>(
+      value: 'Engineer',
+      child: Text('Engineer'),
+    ),
+    DropdownMenuItem<String>(
+      value: 'Worker',
+      child: Text('Worker'),
+    ),
+  ],
+),
+
                               ],
                             ),
                           ),

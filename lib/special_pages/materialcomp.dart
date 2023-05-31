@@ -11,7 +11,9 @@ class ShoppingCartPage extends StatefulWidget {
   _ShoppingCartPageState createState() => _ShoppingCartPageState();
 }
 
+
 class _ShoppingCartPageState extends State<ShoppingCartPage> {
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -118,7 +120,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
       body: ListView.builder(
         itemCount: widget.cartItems.length,
         itemBuilder: (context, index) {
-          final item = widget.cartItems[index];
+          var item = widget.cartItems[index];
           return Container(
             padding: EdgeInsets.all(10),
             // margin: EdgeInsets.all(5),

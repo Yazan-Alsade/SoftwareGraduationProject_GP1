@@ -371,43 +371,7 @@ class _ItemsEquipmentState extends State<ItemsEquipment> {
                                               color: Colors.teal),
                                         ),
                                       ),
-                                      Center(
-                                        child: Container(
-                                            // color: Colors.red,
-                                            child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            IconButton(
-                                                onPressed: () {},
-                                                icon: Icon(
-                                                  Icons.add,
-                                                  color: Colors.black,
-                                                )),
-                                            Container(
-                                                alignment: Alignment.center,
-                                                padding:
-                                                    EdgeInsets.only(bottom: 1),
-                                                width: 50,
-                                                decoration: BoxDecoration(
-                                                    border: Border.all(
-                                                        width: 1.5,
-                                                        color: Colors.black)),
-                                                child: Text(
-                                                  "2",
-                                                  style: TextStyle(
-                                                      fontSize: 20,
-                                                      height: 1.1),
-                                                )),
-                                            IconButton(
-                                                onPressed: () {},
-                                                icon: Icon(
-                                                  Icons.remove,
-                                                  color: Colors.black,
-                                                )),
-                                          ],
-                                        )),
-                                      ),
+                                      // 
                                       Container(
                                         margin: EdgeInsets.all(5),
                                         padding: EdgeInsets.symmetric(

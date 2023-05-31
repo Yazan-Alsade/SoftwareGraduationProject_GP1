@@ -51,6 +51,8 @@ dependencies:
   awesome_dialog: ^3.0.2
   location: ^4.2.0
   google_map_polyline_new: ^0.3.0+2
+  firebase_messaging: ^14.6.2
+  flutter_local_notifications: ^14.1.0
 
 
 
@@ -66,9 +68,7 @@ dev_dependencies:
     sdk: flutter
   intl: ^0.17.0
   http: ^0.13.5
-  shared_preferences: any
   fluttertoast: any
-  get: ^4.3.8
 
 
   # The "flutter_lints" package below contains a set of recommended lints to

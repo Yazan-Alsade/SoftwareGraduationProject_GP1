@@ -1,8 +1,11 @@
+import 'package:construction_company/main.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class AttendanceFormPage extends StatefulWidget {
   final String workerId;
@@ -15,6 +18,8 @@ class AttendanceFormPage extends StatefulWidget {
 }
 
 class _AttendanceFormPageState extends State<AttendanceFormPage> {
+  final FirebaseMessaging fcm = FirebaseMessaging.instance;
+
   final _formKey = GlobalKey<FormState>();
   bool _isPresent = false;
   TextEditingController _dateController = TextEditingController();
@@ -24,6 +29,10 @@ class _AttendanceFormPageState extends State<AttendanceFormPage> {
   @override
   void initState() {
     super.initState();
+    Noti.initialize(flutterLocalNotificationsPlugin);
+    // fcm.getToken().then((token) {
+    // print("this is token:" + token!);
+    // });
     _dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
   }
 
@@ -63,32 +72,25 @@ class _AttendanceFormPageState extends State<AttendanceFormPage> {
         final userId = responsedata['attendance'];
         final existingDateAdded = responsedata['existingAttendance'];
 
-        if (existingDateAdded!=null&&existingDateAdded) {
+        if (existingDateAdded != null && existingDateAdded) {
           Fluttertoast.showToast(
-            msg: 'Attendance for this date already exists',
+            msg: 'Attendance for this date already existsssss',
             toastLength: Toast.LENGTH_LONG,
             gravity: ToastGravity.BOTTOM,
             backgroundColor: Colors.red,
             textColor: Colors.white,
           );
         } else {
-          Fluttertoast.showToast(
-            msg: 'Attendance has been added successfully.',
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            backgroundColor: Color(0xFF336699),
-            textColor: Colors.white,
-          );
+          Noti.showBigTextNotification(
+              title: "Add Attendance",
+              body: "${widget.workerName} added Attendance to him",
+              fln: flutterLocalNotificationsPlugin);
         }
       } else {
-        final responsedata = jsonDecode(res.body);
-        Fluttertoast.showToast(
-          msg: responsedata['message'],
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-        );
+        Noti.showBigTextNotification(
+            title: "Add Attendance",
+            body: "Attendance for this date already exists",
+            fln: flutterLocalNotificationsPlugin);
       }
     }
   }
@@ -174,7 +176,12 @@ class _AttendanceFormPageState extends State<AttendanceFormPage> {
                   ),
                   SizedBox(height: 16.0),
                   ElevatedButton(
-                    onPressed: _isSubmitting ? null : submitAttendance,
+                    onPressed: _isSubmitting
+                        ? null
+                        : () {
+                            submitAttendance();
+                            // Noti.showBigTextNotification(title: "Add Attendance", body: "${widget.workerName} add attendance for you", fln:flutterLocalNotificationsPlugin );
+                          },
                     child: Text(
                       'Submit',
                       style: TextStyle(fontSize: 16.0),
@@ -209,5 +216,41 @@ class _AttendanceFormPageState extends State<AttendanceFormPage> {
         ],
       ),
     );
+  }
+}
+
+class Noti {
+  static Future initialize(
+      FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
+    var androidInitialize =
+        new AndroidInitializationSettings('mipmap/ic_launcher');
+    // var iOSInitialize = new IOSInitializationSettings();
+    var initializationsSettings = new InitializationSettings(
+      android: androidInitialize,
+    );
+    await flutterLocalNotificationsPlugin.initialize(initializationsSettings);
+  }
+
+  static Future showBigTextNotification(
+      {var id = 0,
+      required String title,
+      required String body,
+      var payload,
+      required FlutterLocalNotificationsPlugin fln}) async {
+    AndroidNotificationDetails androidPlatformChannelSpecifics =
+        new AndroidNotificationDetails(
+      'you_can_name_it_whatever1',
+      'channel_name',
+      playSound: true,
+      // sound: RawResourceAndroidNotificationSound('mipmap/ic_launcher'),
+      importance: Importance.max,
+      priority: Priority.high,
+      largeIcon: DrawableResourceAndroidBitmap('mipmap/ic_launcher'),
+    );
+
+    var not = NotificationDetails(
+      android: androidPlatformChannelSpecifics,
+    );
+    await fln.show(0, title, body, not);
   }
 }
