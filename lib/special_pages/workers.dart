@@ -1,15 +1,17 @@
-import 'package:construction_company/special_pages/addWorker.dart';
-import 'package:construction_company/special_pages/tasks.dart';
+import 'addWorker.dart';
+import 'tasks.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../login.dart';
 import 'addAttendance.dart';
 
 class WorkersPage extends StatefulWidget {
+  WorkersPage({
+    Key? key,
+  }) : super(key: key);
   @override
   _WorkersPageState createState() => _WorkersPageState();
 }
@@ -271,7 +273,7 @@ class WorkerCard extends StatelessWidget {
                 ),
               ),
             ),
-            ElevatedButton(onPressed: onAddTask, child: Text("Add Task"))
+            ElevatedButton(onPressed: () {}, child: Text("Add Task"))
           ],
         ),
       ),

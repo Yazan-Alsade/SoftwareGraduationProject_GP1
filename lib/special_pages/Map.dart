@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:construction_company/home.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -335,7 +336,7 @@ class _MyAppState extends State<MyApp> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 Padding(
-                  padding: EdgeInsets.all(10.0),
+                  padding: EdgeInsets.all(7.0),
                   child: TextButton(
                       onPressed: () {
                         Navigator.push(context,
@@ -359,13 +360,13 @@ class _MyAppState extends State<MyApp> {
                       )),
                 ),
                 Padding(
-                  padding: EdgeInsets.all(10.0),
+                  padding: EdgeInsets.all(7.0),
                   child: TextButton(
                       onPressed: () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) {
-                          return AddWorker();
-                        }));
+                        // Navigator.push(context,
+                        //     MaterialPageRoute(builder: (context) {
+                        //   return AddWorker();
+                        // }));
                       },
                       child: Container(
                         padding: EdgeInsets.all(10),
@@ -375,6 +376,30 @@ class _MyAppState extends State<MyApp> {
                         ),
                         child: Text(
                           "Add Task",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 17),
+                        ),
+                      )),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(10.0),
+                  child: TextButton(
+                      onPressed: () {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) {
+                          return Home();
+                        }));
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          color: Color(0xfff7b858),
+                        ),
+                        child: Text(
+                          "Home Page",
                           style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,

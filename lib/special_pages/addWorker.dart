@@ -22,14 +22,15 @@ class _AddWorkerState extends State<AddWorker> {
   final _phoneController = TextEditingController();
   final _salaryController = TextEditingController();
   final latitude = TextEditingController();
-    final lagnitude = TextEditingController();
+  final lagnitude = TextEditingController();
+  final password = TextEditingController();
 
   // String _status = 'pending';
   File? _image;
 
   Future<void> _pickImage() async {
     final imagePicker = ImagePicker();
-    final pickedFile = await imagePicker.pickImage(source: ImageSource.camera);
+    final pickedFile = await imagePicker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
         _image = File(pickedFile.path);
@@ -56,9 +57,11 @@ class _AddWorkerState extends State<AddWorker> {
       request.fields['salary'] = _salaryController.text;
       request.fields['latitude'] = latitude.text;
       request.fields['longitude'] = lagnitude.text;
+      request.fields['password'] = password.text;
       var myRequest = await request.send();
       var response = await http.Response.fromStream(myRequest);
       // print(response.body);
+      print(myRequest.statusCode);
       if (myRequest.statusCode == 201) {
         QuickAlert.show(
           confirmBtnText: 'Save',
@@ -89,10 +92,6 @@ class _AddWorkerState extends State<AddWorker> {
       appBar: AppBar(
         backgroundColor: Color(0xfff7b858),
         title: Text('Add Worker'),
-        leading: Center(
-            child: Icon(
-          Icons.add_box,
-        )),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -129,6 +128,24 @@ class _AddWorkerState extends State<AddWorker> {
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter a worker name';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                ),
+                SizedBox(height: 16.0),
+                Card(
+                  child: Container(
+                    padding: EdgeInsets.only(left: 20),
+                    child: TextFormField(
+                      controller: password,
+                      decoration: InputDecoration(
+                          labelText: 'Worker Password',
+                          border: InputBorder.none),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a worker password';
                         }
                         return null;
                       },
@@ -187,7 +204,7 @@ class _AddWorkerState extends State<AddWorker> {
                   ),
                 ),
                 SizedBox(height: 16.0),
-                  Card(
+                Card(
                   child: Container(
                     padding: EdgeInsets.only(left: 20),
                     child: TextFormField(
@@ -203,7 +220,7 @@ class _AddWorkerState extends State<AddWorker> {
                     ),
                   ),
                 ),
-                  Card(
+                Card(
                   child: Container(
                     padding: EdgeInsets.only(left: 20),
                     child: TextFormField(

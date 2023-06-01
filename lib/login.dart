@@ -3,11 +3,12 @@ import 'forgetPassword.dart';
 import 'home.dart';
 import 'signup.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:intl/intl.dart';
+// import 'package:flutter/rendering.dart';
+// import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'special_pages/workers.dart';
+
 
 // import 'package:fluttertoast/fluttertoast.dart';
 class Login extends StatefulWidget {
@@ -64,54 +65,8 @@ class _LoginState extends State<Login> {
       if (role == 'Worker') {
         SharedPreferences pref = await SharedPreferences.getInstance();
         pref.setString('email', _email.text);
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text(
-                'Welcome',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.check_circle_outline,
-                    size: 48,
-                    color: Colors.green,
-                  ),
-                  SizedBox(height: 16),
-                  Text(
-                    'You have successfully logged in.',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ],
-              ),
-              actions: [
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (context) => WorkersPage()),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.green,
-                  ),
-                  child: Text(
-                    'OK',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
-        
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => WorkersPage()),
         );
       } else {
         SharedPreferences pref = await SharedPreferences.getInstance();

@@ -27,7 +27,7 @@ var services = [
   "Worker Tracking",
   "Notifications",
   "Profile",
-  "Logout",
+  "Chat",
 ];
 var images = [
   "images/project.png",

@@ -1,8 +1,10 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:construction_company/main.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dash.dart';
 import 'login.dart';
+import 'special_pages/chat.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -70,9 +72,13 @@ class _HomeState extends State<Home> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         backgroundColor: Color(0xfff7b858),
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) {
+            return Chat();
+          }));
+        },
         child: Icon(
-          Icons.add,
+          Icons.chat,
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
