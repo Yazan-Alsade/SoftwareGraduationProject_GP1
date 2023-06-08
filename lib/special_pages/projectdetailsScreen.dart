@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'const.dart';
+
 class ProjectDetailsScreen extends StatefulWidget {
   final String projectId;
 
@@ -29,7 +31,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> {
   Future<void> fetchTasks() async {
     try {
       final url =
-          'http://10.0.2.2:3000/Worker/getProjectTasks/${widget.projectId}';
+          '$apiBaseUrl:3000/Worker/getProjectTasks/${widget.projectId}';
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -50,7 +52,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> {
   Future<void> fetchWorkers() async {
     try {
       final response =
-          await http.get(Uri.parse('http://10.0.2.2:3000/Worker/GetAllWorker'));
+          await http.get(Uri.parse('$apiBaseUrl:3000/Worker/GetAllWorker'));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         setState(() {

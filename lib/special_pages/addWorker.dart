@@ -10,6 +10,8 @@ import 'package:path/path.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
 
+import 'const.dart';
+
 class AddWorker extends StatefulWidget {
   @override
   _AddWorkerState createState() => _AddWorkerState();
@@ -23,7 +25,6 @@ class _AddWorkerState extends State<AddWorker> {
   final _salaryController = TextEditingController();
   final latitude = TextEditingController();
   final lagnitude = TextEditingController();
-  final password = TextEditingController();
 
   // String _status = 'pending';
   File? _image;
@@ -45,7 +46,7 @@ class _AddWorkerState extends State<AddWorker> {
     try {
       print(_image!.path);
       var request = http.MultipartRequest(
-          "POST", Uri.parse('http://10.0.2.2:3000/Worker/AddWorker'));
+          "POST", Uri.parse('$apiBaseUrl:3000/Worker/AddWorker'));
       var length = await _image!.length();
       var stream = http.ByteStream(_image!.openRead());
       var multipartData = http.MultipartFile('media', stream, length,
@@ -57,7 +58,6 @@ class _AddWorkerState extends State<AddWorker> {
       request.fields['salary'] = _salaryController.text;
       request.fields['latitude'] = latitude.text;
       request.fields['longitude'] = lagnitude.text;
-      request.fields['password'] = password.text;
       var myRequest = await request.send();
       var response = await http.Response.fromStream(myRequest);
       // print(response.body);
@@ -134,24 +134,8 @@ class _AddWorkerState extends State<AddWorker> {
                     ),
                   ),
                 ),
-                SizedBox(height: 16.0),
-                Card(
-                  child: Container(
-                    padding: EdgeInsets.only(left: 20),
-                    child: TextFormField(
-                      controller: password,
-                      decoration: InputDecoration(
-                          labelText: 'Worker Password',
-                          border: InputBorder.none),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter a worker password';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                ),
+                // SizedBox(height: 16.0),
+               
                 SizedBox(height: 16.0),
                 Card(
                   child: Container(

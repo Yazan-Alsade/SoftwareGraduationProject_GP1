@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'const.dart';
+
 class RecommendedMaterialsScreen extends StatefulWidget {
   final String materialId;
   const RecommendedMaterialsScreen({Key? key, required this.materialId}) : super(key: key);
@@ -14,7 +16,7 @@ class _RecommendedMaterialsScreenState extends State<RecommendedMaterialsScreen>
   List<dynamic> _recommendedMaterials = [];
 
   Future<List<dynamic>> _getRecommendedMaterials() async {
-    final response = await http.get(Uri.parse('http://10.0.2.2:3000/Recommandation/Recomandation/${widget.materialId}'));
+    final response = await http.get(Uri.parse('$apiBaseUrl:3000/Recommandation/Recomandation/${widget.materialId}'));
     if (response.statusCode == 200) {
       final decoded = jsonDecode(response.body);
       final recommendedMaterials = decoded['recommendedMaterials'];

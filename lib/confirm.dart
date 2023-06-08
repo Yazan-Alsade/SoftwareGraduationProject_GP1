@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import 'login.dart';
+import 'special_pages/const.dart';
 
 class EmailVerificationPage extends StatefulWidget {
   EmailVerificationPage();
@@ -51,7 +52,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
     const headers = {'Content-Type': 'application/json'};
 
     var res = await http.post(
-      Uri.parse('http://10.0.2.2:3000/api/v1/auth/confirmEmail'),
+      Uri.parse('$apiBaseUrl:3000/api/v1/auth/confirmEmail'),
       headers: headers,
       body: body,
       encoding: encoding,

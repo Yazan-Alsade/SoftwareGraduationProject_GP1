@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../widget/equipment/appBarEquip.dart';
+import 'const.dart';
 import 'materialcomp.dart';
 
 class ItemsEquipment extends StatefulWidget {
@@ -50,7 +51,7 @@ class _ItemsEquipmentState extends State<ItemsEquipment> {
   ////////
   Future<List<dynamic>> getmaterial() async {
     final response = await http.get(
-        Uri.parse('http://10.0.2.2:3000/Materials/${widget.categoryName}'));
+        Uri.parse('$apiBaseUrl:3000/Materials/${widget.categoryName}'));
     if (response.statusCode == 200) {
       final decoded = jsonDecode(response.body);
       final materials = decoded['materials'];
@@ -72,7 +73,7 @@ class _ItemsEquipmentState extends State<ItemsEquipment> {
 
   Future<List<dynamic>> getRecommendedMaterials(String materialId) async {
     final response = await http.get(Uri.parse(
-        'http://10.0.2.2:3000/Recommandation/Recomandation/$materialId'));
+        '$apiBaseUrl:3000/Recommandation/Recomandation/$materialId'));
     if (response.statusCode == 200) {
       final decoded = jsonDecode(response.body);
       final recommendedMaterials = decoded['recommendedMaterials'];

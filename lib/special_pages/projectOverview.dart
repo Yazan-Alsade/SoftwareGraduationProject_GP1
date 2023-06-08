@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
+import 'const.dart';
+
 class ProjectScreen extends StatefulWidget {
   @override
   _ProjectScreenState createState() => _ProjectScreenState();
@@ -25,7 +27,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
 
   Future<void> getProjects() async {
     var response =
-        await http.get(Uri.parse('http://10.0.2.2:3000/projects/projectsALL'));
+        await http.get(Uri.parse('$apiBaseUrl:3000/projects/projectsALL'));
     if (response.statusCode == 200) {
       setState(() {
         projects = jsonDecode(response.body);
@@ -40,7 +42,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
             .toList();
         projects = projects.map((project) {
           project['imageUrl'] =
-              'http://10.0.2.2:3000/uploads/${project['media']}';
+              '$apiBaseUrl:3000/uploads/${project['media']}';
           return project;
         }).toList();
         displayedProjects = projects;

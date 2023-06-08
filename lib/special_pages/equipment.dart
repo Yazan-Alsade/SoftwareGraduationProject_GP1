@@ -6,6 +6,8 @@ import 'package:scroll_snap_list/scroll_snap_list.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'const.dart';
+
 class Equipment extends StatefulWidget {
   const Equipment({Key? key}) : super(key: key);
 
@@ -19,7 +21,7 @@ class _EquipmentState extends State<Equipment> {
 //////////////// For get all categories
   Future<List<dynamic>> getCategories() async {
     final response =
-        await http.get(Uri.parse('http://10.0.2.2:3000/Materials/Category'));
+        await http.get(Uri.parse('$apiBaseUrl:3000/Materials/Category'));
     if (response.statusCode == 200) {
       final decoded = jsonDecode(response.body);
       // return decoded['categories'];
@@ -41,7 +43,7 @@ class _EquipmentState extends State<Equipment> {
 /////////////// for get all material
   Future<List<dynamic>> fetchMaterial() async {
     final response = await http
-        .get(Uri.parse('http://10.0.2.2:3000/Materials/GetAllMaterial'));
+        .get(Uri.parse('$apiBaseUrl:3000/Materials/GetAllMaterial'));
 
     if (response.statusCode == 200) {
       final decoded = jsonDecode(response.body);

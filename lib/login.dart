@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 // import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'special_pages/const.dart';
 import 'special_pages/workers.dart';
 
 
@@ -47,7 +48,7 @@ class _LoginState extends State<Login> {
     const headers = {'Content-Type': 'application/json'};
 
     var res = await http.post(
-      Uri.parse('http://10.0.2.2:3000/api/v1/auth/login'),
+      Uri.parse('$apiBaseUrl:3000/api/v1/auth/login'),
       headers: headers,
       body: body,
       encoding: encoding,

@@ -1,11 +1,14 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:construction_company/special_pages/projectOverview.dart';
+import 'package:construction_company/special_pages/workers.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
+
+import 'const.dart';
 
 class WorkerTasksPage extends StatefulWidget {
   final List<Task> tasks;
@@ -25,7 +28,7 @@ class _WorkerTasksPageState extends State<WorkerTasksPage> {
   Future<void> fetchAttendance(String workerId) async {
     try {
       final response = await http.get(
-          Uri.parse('http://10.0.2.2:3000/Worker/ShowAttendance/$workerId'));
+          Uri.parse('$apiBaseUrl:3000/Worker/ShowAttendance/$workerId'));
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
         final presentDates = jsonData['presentDates'];
@@ -153,6 +156,100 @@ class _WorkerTasksPageState extends State<WorkerTasksPage> {
     }
   }
 
+  Future<void> fetchSalaryHistoryForWorker(String workerId) async {
+    try {
+      final response = await http
+          .get(Uri.parse('$apiBaseUrl:3000/Worker/ShowSalary/$workerId'));
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+        final reportData = jsonData['report'];
+
+        showDialog(
+          context: context,
+          builder: (context) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16.0),
+              ),
+              elevation: 8.0,
+              backgroundColor: Colors.white,
+              child: Container(
+                padding: EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          reportData['workerName'],
+                          style: TextStyle(
+                            fontSize: 24.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.close),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 16.0),
+                    DataTable(
+                      columns: [
+                        DataColumn(label: Text('Salary Component')),
+                        DataColumn(label: Text('Amount')),
+                      ],
+                      rows: [
+                        DataRow(cells: [
+                          DataCell(Text('Total Present Days:')),
+                          DataCell(Text(
+                            reportData['totalPresentDays'].toString(),
+                            style: TextStyle(
+                                color: Colors.teal,
+                                fontWeight: FontWeight.bold),
+                          )),
+                        ]),
+                        DataRow(cells: [
+                          DataCell(Text('Salary per Day:')),
+                          DataCell(Text(
+                            reportData['salaryPerDay'],
+                            style: TextStyle(
+                                color: Colors.teal,
+                                fontWeight: FontWeight.bold),
+                          )),
+                        ]),
+                        DataRow(cells: [
+                          DataCell(Text('Total Salary:')),
+                          DataCell(Text(
+                            reportData['totalSalary'].toString(),
+                            style: TextStyle(
+                                color: Colors.teal,
+                                fontWeight: FontWeight.bold),
+                          )),
+                        ]),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      } else {
+        // Handle error
+        print(
+            'Failed to fetch salary history. Status code: ${response.statusCode}');
+      }
+    } catch (error) {
+      // Handle error
+      print('Failed to fetch salary history. Error: $error');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance!.addPostFrameCallback((_) {
@@ -268,8 +365,28 @@ class _WorkerTasksPageState extends State<WorkerTasksPage> {
                           ),
                           SizedBox(height: 16.0),
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                    color: Colors.teal,
+                                    borderRadius: BorderRadius.circular(30)),
+                                child: TextButton(
+                                  onPressed: () {
+                                    fetchSalaryHistoryForWorker(
+                                        widget.workerId);
+                                    // Handle button press
+                                  },
+                                  child: Text(
+                                    'Show Salary',
+                                    style: TextStyle(
+                                      fontSize: 14.0,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
                               Container(
                                 decoration: BoxDecoration(
                                     color: Colors.teal,
@@ -305,7 +422,7 @@ class _WorkerTasksPageState extends State<WorkerTasksPage> {
   }
 
   void _updateTaskStatus(String taskId) async {
-    final url = Uri.parse('http://10.0.2.2:3000/Worker/$taskId');
+    final url = Uri.parse('$apiBaseUrl:3000/Worker/$taskId');
     final headers = {'Content-Type': 'application/json'};
     final body = json.encode({'status': 'completed'});
 
@@ -329,13 +446,13 @@ class _WorkerTasksPageState extends State<WorkerTasksPage> {
       }
 
       final response = await http.put(url, headers: headers, body: body);
-      if (response.statusCode == 400) {
+      if (response.statusCode == 200) {
         QuickAlert.show(
           confirmBtnText: 'Save',
           confirmBtnColor: Color(0xfff7b858),
           onConfirmBtnTap: () {
             Navigator.push(context, MaterialPageRoute(builder: (context) {
-              return ProjectScreen();
+              return WorkersPage();
             }));
           },
           context: context,

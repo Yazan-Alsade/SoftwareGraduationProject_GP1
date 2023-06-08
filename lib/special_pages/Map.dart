@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'addWorker.dart';
+import 'const.dart';
 
 class Worker {
   final String id;
@@ -100,7 +101,7 @@ class _MyAppState extends State<MyApp> {
 
   Future<List<Worker>> fetchWorkers() async {
     final response =
-        await http.get(Uri.parse('http://10.0.2.2:3000/Worker/GetAllWorker'));
+        await http.get(Uri.parse('$apiBaseUrl:3000/Worker/GetAllWorker'));
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
@@ -114,7 +115,7 @@ class _MyAppState extends State<MyApp> {
 
   Future<List<Task>> fetchTasks() async {
     final response =
-        await http.get(Uri.parse('http://10.0.2.2:3000/Worker/GetAllTask'));
+        await http.get(Uri.parse('$apiBaseUrl:3000/Worker/GetAllTask'));
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
@@ -359,30 +360,7 @@ class _MyAppState extends State<MyApp> {
                         ),
                       )),
                 ),
-                Padding(
-                  padding: EdgeInsets.all(7.0),
-                  child: TextButton(
-                      onPressed: () {
-                        // Navigator.push(context,
-                        //     MaterialPageRoute(builder: (context) {
-                        //   return AddWorker();
-                        // }));
-                      },
-                      child: Container(
-                        padding: EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          color: Color(0xfff7b858),
-                        ),
-                        child: Text(
-                          "Add Task",
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 17),
-                        ),
-                      )),
-                ),
+                
                 Padding(
                   padding: EdgeInsets.all(10.0),
                   child: TextButton(

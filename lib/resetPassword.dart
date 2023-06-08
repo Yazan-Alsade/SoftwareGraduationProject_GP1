@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'login.dart';
+import 'special_pages/const.dart';
 
 class ResetPasswordPage extends StatefulWidget {
   @override
@@ -28,7 +29,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
         "password": newPassword,
       });
       var response = await http.post(
-        Uri.parse('http://10.0.2.2:3000/api/v1/auth/resetPassword'),
+        Uri.parse('$apiBaseUrl:3000/api/v1/auth/resetPassword'),
         headers: {'Content-Type': 'application/json'},
         body: requestBody,
       );

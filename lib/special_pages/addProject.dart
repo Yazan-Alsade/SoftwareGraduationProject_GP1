@@ -9,6 +9,8 @@ import 'package:path/path.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
 
+import 'const.dart';
+
 class AddProjectScreen extends StatefulWidget {
   @override
   _AddProjectScreenState createState() => _AddProjectScreenState();
@@ -38,7 +40,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     try {
       // Check if a project with the same name already exists
       final res = await http.get(
-        Uri.parse('http://10.0.2.2:3000/projects/projectsALL'),
+        Uri.parse('$apiBaseUrl:3000/projects/projectsALL'),
       );
       final projects = jsonDecode(res.body) as List<dynamic>;
       final projectExists = projects.any(
@@ -54,7 +56,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
       }
       print(_image!.path);
       var request = http.MultipartRequest(
-          "POST", Uri.parse('http://10.0.2.2:3000/projects/AddProject'));
+          "POST", Uri.parse('$apiBaseUrl:3000/projects/AddProject'));
       var length = await _image!.length();
       var stream = http.ByteStream(_image!.openRead());
       var multipartData = http.MultipartFile('media', stream, length,

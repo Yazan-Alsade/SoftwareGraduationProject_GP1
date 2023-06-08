@@ -27,7 +27,6 @@ var services = [
   "Worker Tracking",
   "Notifications",
   "Profile",
-  "Chat",
 ];
 var images = [
   "images/project.png",
@@ -36,7 +35,6 @@ var images = [
   "images/time.png",
   "images/notification.png",
   "images/profile.png",
-  "images/log-out.png",
 ];
 
 class _DashboardState extends State<Dashboard> {
@@ -47,7 +45,6 @@ class _DashboardState extends State<Dashboard> {
     MyApp(),
     notifications(),
     Account(),
-    Logout(),
   ];
 
   @override

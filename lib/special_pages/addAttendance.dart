@@ -7,6 +7,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
+import 'const.dart';
+
 class AttendanceFormPage extends StatefulWidget {
   final String workerId;
   final String workerName;
@@ -57,7 +59,7 @@ class _AttendanceFormPageState extends State<AttendanceFormPage> {
       var encoding = Encoding.getByName('utf-8');
       const headers = {"Content-Type": "application/json"};
       var res = await http.post(
-        Uri.parse('http://10.0.2.2:3000/Worker/AddAttendance'),
+        Uri.parse('$apiBaseUrl:3000/Worker/AddAttendance'),
         headers: headers,
         body: body,
         encoding: encoding,

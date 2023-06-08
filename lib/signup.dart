@@ -7,6 +7,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:fluttertoast/fluttertoast.dart';
 
+import 'special_pages/const.dart';
+
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
 
@@ -38,7 +40,7 @@ class _SignUpState extends State<SignUp> {
   var passwordd;
   var confirmp;
   var birthdate;
-  var balanced;
+  // var balanced;
 
   // controller
   TextEditingController _date = TextEditingController();
@@ -46,7 +48,7 @@ class _SignUpState extends State<SignUp> {
   TextEditingController _email = TextEditingController();
   TextEditingController _password = TextEditingController();
   TextEditingController _confirmPassword = TextEditingController();
-  TextEditingController balance = TextEditingController();
+  // TextEditingController balance = TextEditingController();
   var country;
 ///////////// for Create Account //////////////
   insert() async {
@@ -61,14 +63,14 @@ class _SignUpState extends State<SignUp> {
         "confirmPassword": _confirmPassword.text.toString().trim(),
         "age": _date.text.toString().trim(),
         "country": country.toString().trim(),
-        "balance": balance.text.toString().trim(),
+        // "balance": balance.text.toString().trim(),
         "role":selectedRole,
       };
       var body = json.encode(map);
       var encoding = Encoding.getByName('utf-8');
       const headers = {"Content-Type": "application/json"};
       var res = await http.post(
-          Uri.parse('http://10.0.2.2:3000/api/v1/auth/signup'),
+          Uri.parse('$apiBaseUrl:3000/api/v1/auth/signup'),
           headers: headers,
           body: body,
           encoding: encoding);
@@ -481,39 +483,7 @@ class _SignUpState extends State<SignUp> {
                                         border: InputBorder.none),
                                   ),
                                 ),
-                                SizedBox(
-                                  height: 10,
-                                ),
-                                Card(
-                                  elevation: 8,
-                                  child: TextFormField(
-                                    autovalidateMode:
-                                        AutovalidateMode.onUserInteraction,
-                                    validator: (value) {
-                                      if (value!.isEmpty) {
-                                        return 'Please enter your balance';
-                                      }
-                                    },
-                                    onChanged: (value) {
-                                      setState(() {
-                                        balanced = value;
-                                      });
-                                    },
-                                    controller: balance,
-                                    decoration: InputDecoration(
-                                        prefixIcon: Icon(
-                                          Icons.attach_money,
-                                          color: (Color(0xfff7b858)),
-                                        ),
-                                        // contentPadding: EdgeInsets.all(10),
-                                        hintText: 'Enter your balance',
-                                        hintStyle: TextStyle(
-                                            fontSize: 17,
-                                            color: Color.fromARGB(
-                                                255, 141, 140, 140)),
-                                        border: InputBorder.none),
-                                  ),
-                                ),
+                              
 
                                 SizedBox(
                                   height: 15,

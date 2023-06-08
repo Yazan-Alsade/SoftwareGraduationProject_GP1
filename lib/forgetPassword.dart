@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'resetPassword.dart';
+import 'special_pages/const.dart';
 
 class ForgetPasswordPage extends StatefulWidget {
   @override
@@ -20,7 +21,7 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
     if (email.isNotEmpty) {
       var requestBody = json.encode({"email": email});
       var response = await http.post(
-        Uri.parse('http://10.0.2.2:3000/api/v1/auth/forgetPassword'),
+        Uri.parse('$apiBaseUrl:3000/api/v1/auth/forgetPassword'),
         headers: {'Content-Type': 'application/json'},
         body: requestBody,
       );

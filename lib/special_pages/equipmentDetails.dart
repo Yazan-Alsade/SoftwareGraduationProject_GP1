@@ -5,6 +5,8 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'const.dart';
+
 class MaterialDetailsDialog extends StatefulWidget {
   final dynamic material;
 
@@ -132,7 +134,7 @@ Future<void> clearReview() async {
     // Store new review
     final response = await http.post(
       Uri.parse(
-        'http://10.0.2.2:3000/Materials/${widget.material['_id']}/reviews'),
+        '$apiBaseUrl:3000/Materials/${widget.material['_id']}/reviews'),
       body: json.encode({
         'userId': userId,
         'rating': _rating,

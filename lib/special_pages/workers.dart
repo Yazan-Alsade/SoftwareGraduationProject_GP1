@@ -1,4 +1,8 @@
+import 'package:construction_company/special_pages/addTask.dart';
+import 'package:construction_company/special_pages/projectOverview.dart';
+
 import 'addWorker.dart';
+import 'const.dart';
 import 'tasks.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -70,7 +74,7 @@ class _WorkersPageState extends State<WorkersPage> {
   Future<void> fetchTasksForWorker(String workerId, String workername) async {
     try {
       final response = await http
-          .get(Uri.parse('http://10.0.2.2:3000/Worker/tasks/$workerId'));
+          .get(Uri.parse('$apiBaseUrl:3000/Worker/tasks/$workerId'));
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
         final tasksData = jsonData['tasks'];
@@ -109,7 +113,7 @@ class _WorkersPageState extends State<WorkersPage> {
   Future<void> fetchWorkers() async {
     try {
       final response =
-          await http.get(Uri.parse('http://10.0.2.2:3000/Worker/GetAllWorker'));
+          await http.get(Uri.parse('$apiBaseUrl:3000/Worker/GetAllWorker'));
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
         final workersData = jsonData['workers'];
@@ -143,10 +147,10 @@ class _WorkersPageState extends State<WorkersPage> {
         backgroundColor: Color(0xfff7b858),
         onPressed: () {
           Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return AddWorker();
+            return ProjectScreen();
           }));
         },
-        child: Icon(Icons.add),
+        child: Icon(Icons.task_outlined),
       ),
       appBar: AppBar(
         actions: [
@@ -174,7 +178,12 @@ class _WorkersPageState extends State<WorkersPage> {
                 fetchTasksForWorker(worker.id, worker.name);
                 // Handle worker tap
               },
-              onAddTask: () {},
+              onAddTask: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return AddTaskPage(workerId: worker.id);
+                }));
+              },
+              onShowSalary: () {},
             ),
           );
         }),
@@ -207,11 +216,13 @@ class WorkerCard extends StatelessWidget {
   final Worker worker;
   final VoidCallback onTap;
   final VoidCallback onAddTask;
+  final VoidCallback onShowSalary;
 
   const WorkerCard({
     required this.worker,
     required this.onTap,
     required this.onAddTask,
+    required this.onShowSalary,
   });
   @override
   Widget build(BuildContext context) {
@@ -246,13 +257,13 @@ class WorkerCard extends StatelessWidget {
               style: TextStyle(fontSize: 14.0, color: Colors.grey),
             ),
             // SizedBox(height: 4.0),
-            Text(
-              'Salary: ${worker.salary}',
-              style: TextStyle(
-                  fontSize: 14.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey),
-            ),
+            // Text(
+            //   'Salary: ${worker.salary}',
+            //   style: TextStyle(
+            //       fontSize: 14.0,
+            //       fontWeight: FontWeight.bold,
+            //       color: Colors.grey),
+            // ),
             // SizedBox(height: 16.0),
             Tooltip(
               decoration:
@@ -273,7 +284,7 @@ class WorkerCard extends StatelessWidget {
                 ),
               ),
             ),
-            ElevatedButton(onPressed: () {}, child: Text("Add Task"))
+            ElevatedButton(onPressed: onAddTask, child: Text("Add Task"))
           ],
         ),
       ),
